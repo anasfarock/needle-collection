@@ -95,76 +95,94 @@ const productImages = [
 
 export const initialProducts: Product[] = [
   {
-    id: '1', slug: 'noor-lawn-3-piece', title: 'Noor Lawn Collection', subtitle: 'Embroidered 3-Piece',
-    description: 'Exquisite lawn ensemble featuring intricate thread embroidery on the front panel, paired with a digitally printed dupatta and dyed trousers. Crafted from premium breathable lawn for summer elegance.',
-    category: 'Women', subcategory: 'Unstitched', fabric: 'Lawn', season: 'Summer',
-    status: 'active', price: 4500, compareAtPrice: 5800,
-    images: [productImages[0], productImages[1], productImages[2]],
-    colors: [{ name: 'Ivory', hex: '#F6F1E9' }, { name: 'Blush', hex: '#E8C4C4' }, { name: 'Sage', hex: '#6F7A63' }],
-    sizes: ['Unstitched'], stock: 45, isNew: true, isSale: true, publishedAt: '2026-11-01'
+    id: '1', slug: 'heritage-kurta-premium', title: 'Heritage Kurta', subtitle: 'Premium Cotton — Everyday Elegance',
+    description: 'Classic straight-cut kurta in premium combed cotton with subtle texture weave. Side slits, mother-of-pearl buttons, and a relaxed fit. The foundation of every Pakistani man\'s wardrobe.',
+    category: 'Men', subcategory: 'Kurta', fabric: 'Cotton', season: 'All',
+    status: 'active', price: 3200, compareAtPrice: 4200,
+    images: [productImages[6], productImages[7], productImages[1]],
+    colors: [{ name: 'White', hex: '#FFFFFF' }, { name: 'Cream', hex: '#F5E6D3' }, { name: 'Charcoal', hex: '#36454F' }, { name: 'Navy', hex: '#1B2A4A' }],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'], stock: 78, isNew: true, isSale: true, publishedAt: '2026-11-01'
   },
   {
-    id: '2', slug: 'zara-formal-chiffon', title: 'Zara Formal Chiffon', subtitle: 'Heavy Embroidered',
-    description: 'Luxurious chiffon formal wear with heavy hand embroidery, sequin work and stone detailing. Includes embroidered shirt, dupatta with border, and dyed trouser fabric.',
+    id: '2', slug: 'classic-shalwar-kameez', title: 'Executive Shalwar Kameez', subtitle: 'Premium Wash & Wear',
+    description: 'Traditional shalwar kameez in premium imported wash & wear fabric. Wrinkle-resistant, comfortable fit with a modern silhouette. Perfect for office, jummah, and formal occasions.',
+    category: 'Men', subcategory: 'Shalwar Kameez', fabric: 'Wash & Wear', season: 'All',
+    status: 'active', price: 4800,
+    images: [productImages[1], productImages[6], productImages[7]],
+    colors: [{ name: 'White', hex: '#FFFFFF' }, { name: 'Off-White', hex: '#FAF0E6' }, { name: 'Light Grey', hex: '#D3D3D3' }, { name: 'Sky Blue', hex: '#B0C4DE' }],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'], stock: 55, isNew: true, publishedAt: '2026-11-05'
+  },
+  {
+    id: '3', slug: 'waistcoat-formal', title: 'Lahori Waistcoat', subtitle: 'Structured Formal Layer',
+    description: 'Impeccably tailored waistcoat in premium fabric with satin lining. Single-breasted, three-button closure with welt pockets. The perfect layer over your kurta for weddings and formal events.',
+    category: 'Men', subcategory: 'Waistcoats', fabric: 'Poly-Viscose', season: 'Winter',
+    status: 'active', price: 5500,
+    images: [productImages[7], productImages[6], productImages[1]],
+    colors: [{ name: 'Charcoal', hex: '#36454F' }, { name: 'Navy', hex: '#1B2A4A' }, { name: 'Black', hex: '#000000' }, { name: 'Maroon', hex: '#5A1F26' }],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'], stock: 32, isNew: true, publishedAt: '2026-11-08'
+  },
+  {
+    id: '4', slug: 'sherwani-wedding', title: 'Shaan-e-Mehfil Sherwani', subtitle: 'Bridal & Formal',
+    description: 'Regal sherwani with heavy hand embroidery, dabka and sequin work. A-line silhouette with band collar, hook closure, and side slits. For the man who commands the grandest day.',
+    category: 'Men', subcategory: 'Formal', fabric: 'Silk Blend', season: 'Winter',
+    status: 'active', price: 45000, compareAtPrice: 55000,
+    images: [productImages[10], productImages[11], productImages[0]],
+    colors: [{ name: 'Ivory & Gold', hex: '#DAA520' }, { name: 'Maroon', hex: '#5A1F26' }, { name: 'Midnight', hex: '#191970' }],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'], stock: 8, isSale: true, publishedAt: '2026-09-01'
+  },
+  {
+    id: '5', slug: 'peshawari-chappal-kurta', title: 'Peshawari Kurta Set', subtitle: 'Complete Ensemble',
+    description: 'Relaxed-fit kurta with traditional Peshawari collar, paired with matching shalwar. Crafted in premium linen for a breezy, effortless look. Includes Peshawari chappal.',
+    category: 'Men', subcategory: 'Kurta', fabric: 'Linen', season: 'Summer',
+    status: 'active', price: 6200,
+    images: [productImages[6], productImages[1], productImages[7]],
+    colors: [{ name: 'Natural', hex: '#F5E6D3' }, { name: 'Olive', hex: '#6F7A63' }, { name: 'Sand', hex: '#C2B280' }],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'], stock: 42, isNew: true, publishedAt: '2026-10-20'
+  },
+  {
+    id: '6', slug: 'karachi-kurta-casual', title: 'Karachi Weekend Kurta', subtitle: 'Casual Everyday',
+    description: 'Relaxed weekend kurta in soft cotton jersey. Mandarin collar, chest pocket, and side slits. The perfect blend of comfort and style for casual Fridays and weekend gatherings.',
+    category: 'Men', subcategory: 'Kurta', fabric: 'Cotton Jersey', season: 'All',
+    status: 'active', price: 2400, compareAtPrice: 3200,
+    images: [productImages[7], productImages[6], productImages[1]],
+    colors: [{ name: 'Grey Marl', hex: '#808080' }, { name: 'Navy', hex: '#1B2A4A' }, { name: 'Black', hex: '#1a1a1a' }, { name: 'Rust', hex: '#9C3B2A' }],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'], stock: 95, isSale: true, publishedAt: '2026-10-15'
+  },
+  {
+    id: '7', slug: 'kids-kurta-shalwar', title: 'Little Sahab Set', subtitle: 'Boys Kurta Shalwar',
+    description: 'Adorable mini kurta shalwar set for young gentlemen. Premium cotton with subtle embroidery on the collar. Soft, comfortable, and perfect for Eid and family gatherings.',
+    category: 'Kids', subcategory: 'Ready to Wear', fabric: 'Cotton', season: 'All',
+    status: 'active', price: 2200,
+    images: [productImages[3], productImages[8]],
+    colors: [{ name: 'White', hex: '#FFFFFF' }, { name: 'Cream', hex: '#F5E6D3' }, { name: 'Sky', hex: '#87CEEB' }],
+    sizes: ['2-3Y', '4-5Y', '6-7Y', '8-9Y', '10-12Y'], stock: 34, publishedAt: '2026-11-10'
+  },
+  {
+    id: '8', slug: 'winter-khaddar-kurta', title: 'Khaddar Kurta', subtitle: 'Winter Essential',
+    description: 'Warm khaddar kurta with traditional weave texture. Mandarin collar, front placket with wooden buttons. Pairs perfectly with shalwar or churidar for the colder months.',
+    category: 'Men', subcategory: 'Kurta', fabric: 'Khaddar', season: 'Winter',
+    status: 'active', price: 3800,
+    images: [productImages[5], productImages[9], productImages[6]],
+    colors: [{ name: 'Camel', hex: '#C19A6B' }, { name: 'Charcoal', hex: '#36454F' }, { name: 'Olive', hex: '#6F7A63' }],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'], stock: 67, publishedAt: '2026-10-25'
+  },
+  {
+    id: '9', slug: 'noor-lawn-3-piece', title: 'Noor Lawn Collection', subtitle: 'Women\'s Embroidered 3-Piece',
+    description: 'Exquisite lawn ensemble featuring intricate thread embroidery on the front panel, paired with a digitally printed dupatta and dyed trousers.',
+    category: 'Women', subcategory: 'Unstitched', fabric: 'Lawn', season: 'Summer',
+    status: 'active', price: 4500, compareAtPrice: 5800,
+    images: [productImages[0], productImages[2], productImages[4]],
+    colors: [{ name: 'Ivory', hex: '#F6F1E9' }, { name: 'Blush', hex: '#E8C4C4' }, { name: 'Sage', hex: '#6F7A63' }],
+    sizes: ['Unstitched'], stock: 45, isSale: true, publishedAt: '2026-11-01'
+  },
+  {
+    id: '10', slug: 'zara-formal-chiffon', title: 'Zara Formal Chiffon', subtitle: 'Women\'s Heavy Embroidered',
+    description: 'Luxurious chiffon formal wear with heavy hand embroidery, sequin work and stone detailing.',
     category: 'Women', subcategory: 'Formal', fabric: 'Chiffon', season: 'Winter',
     status: 'active', price: 18500,
     images: [productImages[3], productImages[4], productImages[5]],
     colors: [{ name: 'Maroon', hex: '#5A1F26' }, { name: 'Navy', hex: '#1B2A4A' }, { name: 'Emerald', hex: '#2D5A3D' }],
-    sizes: ['Unstitched'], stock: 12, isNew: true, publishedAt: '2026-11-05'
-  },
-  {
-    id: '3', slug: 'classic-kurta-men', title: 'Heritage Kurta', subtitle: 'Men\'s Premium Cotton',
-    description: 'Classic straight-cut kurta in premium cotton with subtle texture weave. Side slits, mother-of-pearl buttons, and a relaxed fit perfect for everyday elegance.',
-    category: 'Men', subcategory: 'Kurta', fabric: 'Cotton', season: 'All',
-    status: 'active', price: 3200,
-    images: [productImages[6], productImages[7]],
-    colors: [{ name: 'White', hex: '#FFFFFF' }, { name: 'Cream', hex: '#F5E6D3' }, { name: 'Charcoal', hex: '#36454F' }],
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'], stock: 78, publishedAt: '2026-10-15'
-  },
-  {
-    id: '4', slug: 'gulbahar-lawn-2piece', title: 'Gulbahar Lawn', subtitle: 'Printed 2-Piece',
-    description: 'Fresh floral prints on premium lawn fabric. Shirt piece with all-over digital print and matching dyed trouser. Light, breathable, perfect for daily wear.',
-    category: 'Women', subcategory: 'Unstitched', fabric: 'Lawn', season: 'Summer',
-    status: 'active', price: 2800,
-    images: [productImages[8], productImages[9]],
-    colors: [{ name: 'Sky', hex: '#87CEEB' }, { name: 'Peach', hex: '#FFCBA4' }, { name: 'Mint', hex: '#98FF98' }],
-    sizes: ['Unstitched'], stock: 120, publishedAt: '2026-10-20'
-  },
-  {
-    id: '5', slug: 'wedding-organza', title: 'Shaan-e-Mehfil', subtitle: 'Bridal Organza Set',
-    description: 'Exquisite bridal ensemble in pure organza with heavy zardozi, dabka and sequin work. Includes heavily embroidered shirt, dupatta with four-side border, and trouser.',
-    category: 'Women', subcategory: 'Formal', fabric: 'Organza', season: 'Winter',
-    status: 'active', price: 45000, compareAtPrice: 55000,
-    images: [productImages[10], productImages[11], productImages[0]],
-    colors: [{ name: 'Red', hex: '#8B0000' }, { name: 'Gold', hex: '#DAA520' }],
-    sizes: ['Unstitched'], stock: 5, isSale: true, publishedAt: '2026-09-01'
-  },
-  {
-    id: '6', slug: 'shalwar-kameez-men', title: 'Classic Shalwar Kameez', subtitle: 'Men\'s Wash & Wear',
-    description: 'Traditional shalwar kameez in premium wash & wear fabric. Wrinkle-resistant, comfortable fit with a modern silhouette. Perfect for formal and casual occasions.',
-    category: 'Men', subcategory: 'Shalwar Kameez', fabric: 'Wash & Wear', season: 'All',
-    status: 'active', price: 4800,
-    images: [productImages[1], productImages[6]],
-    colors: [{ name: 'White', hex: '#FFFFFF' }, { name: 'Off-White', hex: '#FAF0E6' }, { name: 'Light Grey', hex: '#D3D3D3' }],
-    sizes: ['S', 'M', 'L', 'XL', 'XXL'], stock: 55, publishedAt: '2026-10-01'
-  },
-  {
-    id: '7', slug: 'kids-frocks', title: 'Little Noor Frocks', subtitle: 'Girls Party Wear',
-    description: 'Adorable party frock for little ones with delicate embroidery and net overlay. Soft cotton lining for comfort. Available in multiple colors.',
-    category: 'Kids', subcategory: 'Ready to Wear', fabric: 'Net', season: 'All',
-    status: 'active', price: 2200,
-    images: [productImages[3], productImages[8]],
-    colors: [{ name: 'Pink', hex: '#FFB6C1' }, { name: 'Lavender', hex: '#E6E6FA' }, { name: 'Mint', hex: '#98FB98' }],
-    sizes: ['2-3Y', '4-5Y', '6-7Y', '8-9Y', '10-12Y'], stock: 34, isNew: true, publishedAt: '2026-11-10'
-  },
-  {
-    id: '8', slug: 'kamrez-khaddar', title: 'Kamrez Khaddar', subtitle: 'Winter 3-Piece',
-    description: 'Warm khaddar ensemble with embroidered front, printed back and sleeves. Includes embroidered dupatta with border and dyed trousers. Perfect winter essential.',
-    category: 'Women', subcategory: 'Unstitched', fabric: 'Khaddar', season: 'Winter',
-    status: 'active', price: 5500,
-    images: [productImages[5], productImages[9], productImages[2]],
-    colors: [{ name: 'Rust', hex: '#9C3B2A' }, { name: 'Mustard', hex: '#DAA520' }, { name: 'Olive', hex: '#6F7A63' }],
-    sizes: ['Unstitched'], stock: 67, publishedAt: '2026-10-25'
+    sizes: ['Unstitched'], stock: 12, publishedAt: '2026-11-05'
   },
 ];
 

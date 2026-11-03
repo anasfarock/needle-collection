@@ -58,7 +58,13 @@ export function CollectionPage() {
       {/* Banner */}
       <div className="relative h-64 lg:h-80 overflow-hidden mb-12">
         <img
-          src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=1600&h=400&fit=crop"
+          src={
+            category === 'men'
+              ? 'https://image.qwenlm.ai/generated-images/bd78c216-4a27-46e3-8267-b80e509e5a0d/_result.png'
+              : category === 'women'
+              ? 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1600&h=400&fit=crop'
+              : 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=1600&h=400&fit=crop'
+          }
           alt={categoryTitle}
           className="w-full h-full object-cover"
         />

@@ -4,9 +4,9 @@ import { useStore } from '../data/store';
 import { ShoppingBag, Search, User, Heart, Menu, X, ChevronDown } from 'lucide-react';
 
 const navItems = [
+  { label: 'Men', path: '/collections/men', children: ['Kurta', 'Shalwar Kameez', 'Waistcoats', 'Unstitched', 'Sherwani'] },
   { label: 'Women', path: '/collections/women', children: ['Unstitched', 'Ready to Wear', 'Formal & Festive', 'Dupattas & Shawls'] },
-  { label: 'Men', path: '/collections/men', children: ['Kurta', 'Shalwar Kameez', 'Waistcoats', 'Unstitched'] },
-  { label: 'Kids', path: '/collections/kids', children: ['Girls', 'Boys', 'Infants'] },
+  { label: 'Kids', path: '/collections/kids', children: ['Boys', 'Girls', 'Infants'] },
   { label: 'Collections', path: '/collections/all', children: ['Summer Lawn', 'Winter', 'Festive & Eid', 'Wedding'] },
   { label: 'New Arrivals', path: '/collections/new' },
   { label: 'Sale', path: '/collections/sale' },
@@ -37,19 +37,19 @@ export function StorefrontLayout() {
   return (
     <div className="min-h-screen bg-ivory">
       {/* Announcement Bar */}
-      <div className="bg-parchment border-b border-hairline py-2 overflow-hidden">
+      <div className="bg-parchment border-b border-hairline py-2 overflow-hidden h-[36px] flex items-center">
         <div className="animate-marquee whitespace-nowrap flex">
           <span className="text-[11px] uppercase tracking-[0.18em] text-stone mx-8">
-            ✦ Free Delivery on Orders Above Rs. 3,000 ✦ Cash on Delivery Available ✦ New Summer Lawn 2026 Now Live ✦ Easy Returns Within 7 Days ✦ Authentic Craftsmanship ✦
+            ✦ Free Delivery on Orders Above Rs. 3,000 ✦ Cash on Delivery Nationwide ✦ New Kurta Collection 2026 ✦ Premium Shalwar Kameez ✦ Easy Returns Within 7 Days ✦
           </span>
           <span className="text-[11px] uppercase tracking-[0.18em] text-stone mx-8">
-            ✦ Free Delivery on Orders Above Rs. 3,000 ✦ Cash on Delivery Available ✦ New Summer Lawn 2026 Now Live ✦ Easy Returns Within 7 Days ✦ Authentic Craftsmanship ✦
+            ✦ Free Delivery on Orders Above Rs. 3,000 ✦ Cash on Delivery Nationwide ✦ New Kurta Collection 2026 ✦ Premium Shalwar Kameez ✦ Easy Returns Within 7 Days ✦
           </span>
         </div>
       </div>
 
       {/* Header */}
-      <header className={`fixed top-8 left-0 right-0 z-50 transition-all duration-400 ${headerBg}`}>
+      <header className={`fixed left-0 right-0 z-50 transition-all duration-400 ${scrolled ? 'top-0' : 'top-[36px]'} ${headerBg}`}>
         <div className="max-w-[1440px] mx-auto px-6 lg:px-16">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Mobile menu toggle */}
@@ -164,14 +164,14 @@ export function StorefrontLayout() {
             <div>
               <h3 className="font-display text-2xl tracking-[0.15em] uppercase mb-6">Needle Collection</h3>
               <p className="text-sm text-stone leading-relaxed">
-                Where heritage meets contemporary elegance. Each piece is a testament to the artistry of Pakistani craftsmanship.
+                Premium ethnic wear for the modern gentleman. Heritage craftsmanship meets contemporary design — shalwar kameez, kurtas, and waistcoats tailored for those who understand tradition.
               </p>
             </div>
             <div>
               <h4 className="text-[11px] uppercase tracking-[0.18em] font-medium mb-4">Shop</h4>
               <div className="space-y-3">
-                {['Women', 'Men', 'Kids', 'New Arrivals', 'Sale'].map(item => (
-                  <Link key={item} to="/collections/all" className="block text-sm text-stone hover:text-oxblood transition-colors">{item}</Link>
+                {['Men', 'Women', 'Kids', 'New Arrivals', 'Sale'].map(item => (
+                  <Link key={item} to={`/collections/${item.toLowerCase()}`} className="block text-sm text-stone hover:text-oxblood transition-colors">{item}</Link>
                 ))}
               </div>
             </div>
