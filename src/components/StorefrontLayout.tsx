@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useStore } from '../data/store';
-import { ShoppingBag, Search, User, Heart, Menu, X, ChevronDown } from 'lucide-react';
+import { ShoppingBag, Search, Heart, Menu, X, ChevronDown } from 'lucide-react';
 
 const navItems = [
   { label: 'Men', path: '/collections/men', children: ['Kurta', 'Shalwar Kameez', 'Waistcoats', 'Unstitched', 'Sherwani'] },
@@ -94,9 +94,6 @@ export function StorefrontLayout() {
               <button className={`hidden lg:block ${textColor} hover:text-oxblood transition-colors`}>
                 <Search size={20} />
               </button>
-              <Link to="/admin/login" className={`hidden lg:block ${textColor} hover:text-oxblood transition-colors`}>
-                <User size={20} />
-              </Link>
               <Link to="/cart" className={`relative ${textColor} hover:text-oxblood transition-colors`}>
                 <Heart size={20} />
                 {wishlist.length > 0 && (

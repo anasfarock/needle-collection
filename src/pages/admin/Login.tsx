@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { useStore } from '../../data/store';
 import { useState } from 'react';
 import { Lock, Eye, EyeOff } from 'lucide-react';
@@ -12,8 +12,7 @@ export function AdminLogin() {
   const [error, setError] = useState('');
 
   if (isAdmin) {
-    navigate('/admin');
-    return null;
+    return <Navigate to="/admin" replace />;
   }
 
   const handleLogin = (e: React.FormEvent) => {
