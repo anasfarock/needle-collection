@@ -45,10 +45,11 @@ export function StorefrontLayout() {
   }, []);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
     setMobileMenuOpen(false);
     setActiveMega(null);
     setSearchOpen(false);
-  }, [location]);
+  }, [location.pathname, location.search]);
 
   const activeBanners = siteContent.banners.filter(b => b.active);
   const announcementText = activeBanners.length > 0

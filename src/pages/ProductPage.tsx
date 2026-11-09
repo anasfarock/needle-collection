@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useStore } from '../data/store';
 import { ProductCard } from '../components/ProductCard';
-import { Heart, ShoppingBag, ChevronRight, Truck, RotateCcw, Share2, Minus, Plus } from 'lucide-react';
+import { Heart, ShoppingBag, ChevronRight, Truck, RotateCcw, Share2, Minus, Plus, Check } from 'lucide-react';
 
 export function ProductPage() {
   const { slug } = useParams();
@@ -12,7 +12,18 @@ export function ProductPage() {
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
+  const [addedToBag, setAddedToBag] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>('details');
+
+  // Scroll to top and reset selection state whenever the product changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+    setSelectedColor(0);
+    setSelectedSize(product?.sizes?.[0] || '');
+    setQuantity(1);
+    setActiveImg(0);
+    setAddedToBag(false);
+  }, [slug, product?.id]);
 
   if (!product) {
     return (
@@ -24,15 +35,17 @@ export function ProductPage() {
   }
 
   const isWished = wishlist.includes(product.id);
-  const related = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
+  const related = products.filter(p => p.status === 'active' && p.category === product.category && p.id !== product.id).slice(0, 4);
+  const activeSize = selectedSize || product.sizes[0] || 'Standard';
 
   const handleAddToCart = () => {
-    if (!selectedSize && product.sizes.length > 1) return;
-    const size = selectedSize || product.sizes[0];
-    const color = product.colors[selectedColor]?.name || '';
+    const size = activeSize;
+    const color = product.colors[selectedColor]?.name || 'Default';
     for (let i = 0; i < quantity; i++) {
       addToCart(product, size, color);
     }
+    setAddedToBag(true);
+    setTimeout(() => setAddedToBag(false), 1800);
   };
 
   return (
@@ -42,7 +55,7 @@ export function ProductPage() {
         <div className="flex items-center gap-2 text-xs text-stone">
           <Link to="/" className="hover:text-oxblood transition-colors">Home</Link>
           <ChevronRight size={10} />
-          <Link to={`/collections/${product.category.toLowerCase()}`} className="hover:text-oxblood transition-colors">{product.category}</Link>
+          <Link to="/collections/men" className="hover:text-oxblood transition-colors">{product.subcategory || product.category}</Link>
           <ChevronRight size={10} />
           <span className="text-ink">{product.title}</span>
         </div>
@@ -55,7 +68,7 @@ export function ProductPage() {
           <div className="lg:col-span-7">
             <div className="aspect-[3/4] bg-parchment mb-4 overflow-hidden">
               <img
-                src={product.images[activeImg]}
+                src={product.images[activeImg] || product.images[0]}
                 alt={product.title}
                 className="w-full h-full object-cover"
               />
@@ -115,7 +128,9 @@ export function ProductPage() {
             {/* Size */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-[11px] uppercase tracking-[0.15em]">Size</p>
+                <p className="text-[11px] uppercase tracking-[0.15em]">
+                  Size: <span className="text-stone normal-case tracking-normal">{activeSize}</span>
+                </p>
                 <button className="text-[11px] uppercase tracking-[0.15em] text-stone underline">Size Guide</button>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -124,7 +139,7 @@ export function ProductPage() {
                     key={size}
                     onClick={() => setSelectedSize(size)}
                     className={`min-w-[48px] px-4 py-2.5 text-sm border transition-colors ${
-                      selectedSize === size ? 'border-oxblood bg-oxblood text-ivory' : 'border-hairline hover:border-ink'
+                      activeSize === size ? 'border-oxblood bg-oxblood text-ivory' : 'border-hairline hover:border-ink'
                     }`}
                   >
                     {size}
@@ -146,9 +161,19 @@ export function ProductPage() {
               </div>
               <button
                 onClick={handleAddToCart}
-                className="flex-1 flex items-center justify-center gap-2 bg-oxblood text-ivory py-4 text-[11px] uppercase tracking-[0.18em] font-medium hover:bg-ink transition-smooth"
+                className={`flex-1 flex items-center justify-center gap-2 py-4 text-[11px] uppercase tracking-[0.18em] font-medium transition-smooth ${
+                  addedToBag ? 'bg-sage text-ivory' : 'bg-oxblood text-ivory hover:bg-ink'
+                }`}
               >
-                <ShoppingBag size={16} /> Add to Bag
+                {addedToBag ? (
+                  <>
+                    <Check size={16} /> Added to Bag
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag size={16} /> Add to Bag
+                  </>
+                )}
               </button>
               <button
                 onClick={() => toggleWishlist(product.id)}
@@ -217,9 +242,19 @@ export function ProductPage() {
       <div className="fixed bottom-0 left-0 right-0 bg-ivory border-t border-hairline p-4 lg:hidden z-40">
         <button
           onClick={handleAddToCart}
-          className="w-full flex items-center justify-center gap-2 bg-oxblood text-ivory py-4 text-[11px] uppercase tracking-[0.18em] font-medium"
+          className={`w-full flex items-center justify-center gap-2 py-4 text-[11px] uppercase tracking-[0.18em] font-medium transition-colors ${
+            addedToBag ? 'bg-sage text-ivory' : 'bg-oxblood text-ivory'
+          }`}
         >
-          <ShoppingBag size={16} /> Add to Bag — Rs. {(product.price * quantity).toLocaleString()}
+          {addedToBag ? (
+            <>
+              <Check size={16} /> Added to Bag
+            </>
+          ) : (
+            <>
+              <ShoppingBag size={16} /> Add to Bag — Rs. {(product.price * quantity).toLocaleString()}
+            </>
+          )}
         </button>
       </div>
     </div>
