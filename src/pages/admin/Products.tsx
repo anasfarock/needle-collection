@@ -11,6 +11,42 @@ const AVAILABLE_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Unstitched'];
 
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1614252369475-531eba8c5eb1?w=600&h=800&fit=crop';
 
+async function compressImageFile(file: File, maxWidth = 900, maxHeight = 1200, quality = 0.78): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Failed to read image file'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Invalid image file'));
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(reader.result as string);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        const webpDataUrl = canvas.toDataURL('image/webp', quality);
+        if (webpDataUrl.startsWith('data:image/webp')) {
+          resolve(webpDataUrl);
+        } else {
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        }
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 export function AdminProducts() {
   const { products, addProduct, updateProduct, deleteProduct } = useStore();
   const [search, setSearch] = useState('');
@@ -18,6 +54,7 @@ export function AdminProducts() {
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [newColorName, setNewColorName] = useState('');
@@ -125,19 +162,48 @@ export function AdminProducts() {
     setNewImageUrl('');
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-    Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          setForm(prev => ({ ...prev, images: [...prev.images, reader.result as string] }));
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    const selectedFiles = Array.from(files);
     e.target.value = '';
+
+    setUploadingImage(true);
+    setFormError('');
+    try {
+      const token = localStorage.getItem('nc_admin_token');
+      const uploadedUrls: string[] = [];
+
+      for (const file of selectedFiles) {
+        const compressedDataUrl = await compressImageFile(file);
+        try {
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({ dataUrl: compressedDataUrl }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.url) {
+              uploadedUrls.push(data.url);
+              continue;
+            }
+          }
+        } catch {
+          // Use compressedDataUrl fallback below
+        }
+        uploadedUrls.push(compressedDataUrl);
+      }
+
+      setForm(prev => ({ ...prev, images: [...prev.images, ...uploadedUrls] }));
+    } catch (err: any) {
+      setFormError(err?.message || 'Failed to process image.');
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const removeImage = (index: number) => {
@@ -494,9 +560,9 @@ export function AdminProducts() {
                   >
                     Add URL
                   </button>
-                  <label className="px-4 py-2 text-xs uppercase tracking-wider bg-parchment border border-hairline hover:border-oxblood transition-colors cursor-pointer flex items-center gap-1.5">
-                    <Upload size={13} /> Upload File
-                    <input type="file" accept="image/*" multiple onChange={handleFileUpload} className="hidden" />
+                  <label className={`px-4 py-2 text-xs uppercase tracking-wider bg-parchment border border-hairline hover:border-oxblood transition-colors cursor-pointer flex items-center gap-1.5 ${uploadingImage ? 'opacity-60 pointer-events-none' : ''}`}>
+                    <Upload size={13} /> {uploadingImage ? 'Optimizing & Uploading...' : 'Upload File'}
+                    <input type="file" accept="image/*" multiple onChange={handleFileUpload} disabled={uploadingImage} className="hidden" />
                   </label>
                 </div>
 
@@ -620,10 +686,10 @@ export function AdminProducts() {
               </button>
               <button
                 onClick={handleSave}
-                disabled={saving}
+                disabled={saving || uploadingImage}
                 className="px-6 py-2.5 text-sm bg-oxblood text-ivory hover:bg-ink transition-smooth disabled:opacity-50"
               >
-                {saving ? 'Saving...' : editingProduct ? 'Update Product' : 'Create Product'}
+                {uploadingImage ? 'Uploading Image...' : saving ? 'Saving...' : editingProduct ? 'Update Product' : 'Create Product'}
               </button>
             </div>
           </div>

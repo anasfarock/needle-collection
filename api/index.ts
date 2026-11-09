@@ -1301,6 +1301,77 @@ export async function handleApiRequest(req: IncomingMessage, res: ServerResponse
       return sendJson(res, 200, { ok: true, database: hasPrisma ? 'postgresql' : 'local-fallback' });
     }
 
+    // Image Upload endpoint (uploads compressed image to CDN or returns optimized data URL)
+    if (pathname === '/api/upload' && method === 'POST') {
+      const admin = getAuthenticatedAdmin(req);
+      if (!admin) {
+        return sendJson(res, 401, { error: 'Unauthorized: Admin login required.' });
+      }
+      const body = await parseJsonBody(req);
+      const dataUrl = String(body.dataUrl || '');
+      if (!dataUrl.startsWith('data:image/')) {
+        return sendJson(res, 400, { error: 'Valid image dataUrl is required.' });
+      }
+
+      const match = dataUrl.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,(.+)$/);
+      if (!match) {
+        return sendJson(res, 400, { error: 'Malformed image dataUrl.' });
+      }
+      const mimeType = match[1];
+      const base64Data = match[2];
+      const ext = mimeType.includes('webp') ? 'webp' : mimeType.includes('png') ? 'png' : 'jpg';
+
+      // 1. Optional ImgBB upload if IMGBB_API_KEY is configured
+      if (process.env.IMGBB_API_KEY) {
+        try {
+          const form = new URLSearchParams();
+          form.append('key', process.env.IMGBB_API_KEY);
+          form.append('image', base64Data);
+          const imgbbRes = await fetch('https://api.imgbb.com/1/upload', {
+            method: 'POST',
+            body: form,
+          });
+          if (imgbbRes.ok) {
+            const imgbbJson: any = await imgbbRes.json();
+            if (imgbbJson?.data?.url) {
+              return sendJson(res, 200, { url: imgbbJson.data.url, provider: 'imgbb' });
+            }
+          }
+        } catch (err) {
+          console.warn('ImgBB upload fallback:', err);
+        }
+      }
+
+      // 2. Upload to Catbox CDN (free public image host, no API key needed)
+      try {
+        const buffer = Buffer.from(base64Data, 'base64');
+        const blob = new Blob([buffer], { type: mimeType });
+        const formData = new FormData();
+        formData.append('reqtype', 'fileupload');
+        formData.append('fileToUpload', blob, `product-${Date.now()}.${ext}`);
+
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 5000);
+        const catboxRes = await fetch('https://catbox.moe/user/api.php', {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal,
+        });
+        clearTimeout(timer);
+
+        if (catboxRes.ok) {
+          const cdnUrl = (await catboxRes.text()).trim();
+          if (cdnUrl.startsWith('https://')) {
+            return sendJson(res, 200, { url: cdnUrl, provider: 'catbox-cdn' });
+          }
+        }
+      } catch {
+        // Fallback to optimized compressed dataUrl below
+      }
+
+      return sendJson(res, 200, { url: dataUrl, provider: 'optimized-inline' });
+    }
+
     // 1. POST /api/auth/login
     if (pathname === '/api/auth/login' && method === 'POST') {
       const body = await parseJsonBody(req);
