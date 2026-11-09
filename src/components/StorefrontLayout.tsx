@@ -4,10 +4,26 @@ import { useStore } from '../data/store';
 import { ShoppingBag, Search, Heart, Menu, X, ChevronDown } from 'lucide-react';
 
 const navItems = [
-  { label: 'Men', path: '/collections/men', children: ['Kurta', 'Shalwar Kameez', 'Waistcoats', 'Unstitched', 'Sherwani'] },
-  { label: 'Women', path: '/collections/women', children: ['Unstitched', 'Ready to Wear', 'Formal & Festive', 'Dupattas & Shawls'] },
-  { label: 'Kids', path: '/collections/kids', children: ['Boys', 'Girls', 'Infants'] },
-  { label: 'Collections', path: '/collections/all', children: ['Summer Lawn', 'Winter', 'Festive & Eid', 'Wedding'] },
+  {
+    label: 'Kurtas',
+    path: '/collections/men?sub=Kurta',
+    children: [
+      { label: 'Cotton Kurtas', path: '/collections/men?sub=Kurta' },
+      { label: 'Winter Khaddar', path: '/collections/men?sub=Kurta' },
+      { label: 'Waistcoats', path: '/collections/men?sub=Waistcoats' },
+    ],
+  },
+  {
+    label: 'Shalwar Kameez',
+    path: '/collections/men?sub=Shalwar%20Kameez',
+    children: [
+      { label: 'Wash & Wear', path: '/collections/men?sub=Shalwar%20Kameez' },
+      { label: 'Boski & Silk', path: '/collections/men?sub=Shalwar%20Kameez' },
+      { label: 'Sherwani & Formal', path: '/collections/men?sub=Sherwani' },
+      { label: 'Unstitched', path: '/collections/men?sub=Unstitched' },
+    ],
+  },
+  { label: 'All Menswear', path: '/collections/men' },
   { label: 'New Arrivals', path: '/collections/new' },
   { label: 'Sale', path: '/collections/sale' },
 ];
@@ -78,7 +94,7 @@ export function StorefrontLayout() {
 
             {/* Navigation - Desktop */}
             <nav className="hidden lg:flex items-center gap-8">
-              {navItems.slice(0, 3).map(item => (
+              {navItems.slice(0, 2).map(item => (
                 <div key={item.label} className="relative"
                   onMouseEnter={() => item.children && setActiveMega(item.label)}
                   onMouseLeave={() => setActiveMega(null)}>
@@ -90,8 +106,8 @@ export function StorefrontLayout() {
                     <div className="absolute top-full left-0 pt-4 w-56 animate-fade-in-up">
                       <div className="bg-ivory border border-hairline p-6">
                         {item.children.map(child => (
-                          <Link key={child} to={`${item.path}?sub=${encodeURIComponent(child)}`} className="block py-2 text-sm text-stone hover:text-oxblood transition-colors">
-                            {child}
+                          <Link key={child.label} to={child.path} className="block py-2 text-sm text-stone hover:text-oxblood transition-colors">
+                            {child.label}
                           </Link>
                         ))}
                       </div>
@@ -138,7 +154,7 @@ export function StorefrontLayout() {
 
           {/* Desktop nav row 2 */}
           <nav className="hidden lg:flex items-center justify-center gap-8 pb-3">
-            {navItems.slice(3).map(item => (
+            {navItems.slice(2).map(item => (
               <Link key={item.label} to={item.path}
                 className={`text-[11px] uppercase tracking-[0.15em] font-medium hover:text-oxblood transition-colors ${textColor} ${item.label === 'Sale' ? 'text-terracotta' : ''}`}>
                 {item.label}
@@ -157,7 +173,7 @@ export function StorefrontLayout() {
                   type="text"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="Search kurtas, shalwar kameez, waistcoats, lawn..."
+                  placeholder="Search kurtas, shalwar kameez, waistcoats, sherwani..."
                   autoFocus
                   className="flex-1 bg-transparent text-sm text-ink outline-none"
                 />
@@ -178,7 +194,7 @@ export function StorefrontLayout() {
                         <img src={p.images[0]} alt={p.title} className="w-10 h-12 object-cover bg-parchment" />
                         <div>
                           <p className="text-sm text-ink font-medium">{p.title}</p>
-                          <p className="text-xs text-stone">{p.category} · {p.subcategory}</p>
+                          <p className="text-xs text-stone">{p.subcategory} · {p.fabric}</p>
                         </div>
                       </div>
                       <span className="text-sm text-ink tabular-nums">Rs. {p.price.toLocaleString()}</span>
@@ -206,8 +222,8 @@ export function StorefrontLayout() {
                 {item.children && (
                   <div className="pl-4 pb-2">
                     {item.children.map(child => (
-                      <Link key={child} to={`${item.path}?sub=${encodeURIComponent(child)}`} className="block py-2 text-sm text-stone">
-                        {child}
+                      <Link key={child.label} to={child.path} className="block py-2 text-sm text-stone">
+                        {child.label}
                       </Link>
                     ))}
                   </div>
@@ -234,12 +250,13 @@ export function StorefrontLayout() {
               </p>
             </div>
             <div>
-              <h4 className="text-[11px] uppercase tracking-[0.18em] font-medium mb-4">Shop</h4>
+              <h4 className="text-[11px] uppercase tracking-[0.18em] font-medium mb-4">Shop Menswear</h4>
               <div className="space-y-3">
                 {[
-                  { label: 'Men', path: '/collections/men' },
-                  { label: 'Women', path: '/collections/women' },
-                  { label: 'Kids', path: '/collections/kids' },
+                  { label: 'Kurtas', path: '/collections/men?sub=Kurta' },
+                  { label: 'Shalwar Kameez', path: '/collections/men?sub=Shalwar%20Kameez' },
+                  { label: 'Waistcoats', path: '/collections/men?sub=Waistcoats' },
+                  { label: 'Sherwani & Formal', path: '/collections/men?sub=Sherwani' },
                   { label: 'New Arrivals', path: '/collections/new' },
                   { label: 'Sale', path: '/collections/sale' },
                 ].map(item => (

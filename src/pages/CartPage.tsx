@@ -17,7 +17,7 @@ export function CartPage() {
           <ShoppingBag size={48} className="mx-auto text-stone/30 mb-6" />
           <h1 className="font-display text-3xl mb-3">Your Bag is Empty</h1>
           <p className="text-stone text-sm mb-8">Discover our latest collections and find something you love.</p>
-          <Link to="/collections/women" className="inline-flex items-center gap-2 bg-oxblood text-ivory px-8 py-4 text-[11px] uppercase tracking-[0.18em] font-medium hover:bg-ink transition-smooth">
+          <Link to="/collections/men" className="inline-flex items-center gap-2 bg-oxblood text-ivory px-8 py-4 text-[11px] uppercase tracking-[0.18em] font-medium hover:bg-ink transition-smooth">
             Continue Shopping <ArrowRight size={14} />
           </Link>
         </div>
@@ -85,7 +85,7 @@ export function CartPage() {
                 </div>
               ))}
             </div>
-            <Link to="/collections/women" className="inline-flex items-center gap-2 mt-8 text-[11px] uppercase tracking-[0.15em] text-stone hover:text-oxblood transition-colors">
+            <Link to="/collections/men" className="inline-flex items-center gap-2 mt-8 text-[11px] uppercase tracking-[0.15em] text-stone hover:text-oxblood transition-colors">
               ← Continue Shopping
             </Link>
           </div>

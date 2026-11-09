@@ -28,10 +28,7 @@ export function CollectionPage() {
 
   const categoryFilteredBase = useMemo(() => {
     let result = [...products].filter(p => p.status === 'active');
-    if (category === 'women') result = result.filter(p => p.category === 'Women');
-    else if (category === 'men') result = result.filter(p => p.category === 'Men');
-    else if (category === 'kids') result = result.filter(p => p.category === 'Kids');
-    else if (category === 'new') result = result.filter(p => p.isNew);
+    if (category === 'new') result = result.filter(p => p.isNew);
     else if (category === 'sale') result = result.filter(p => p.isSale);
     return result;
   }, [products, category]);
@@ -71,20 +68,20 @@ export function CollectionPage() {
     setArr(arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val]);
   };
 
-  const categoryTitle = category === 'women' ? 'Women' : category === 'men' ? 'Men' : category === 'kids' ? 'Kids' : category === 'new' ? 'New Arrivals' : category === 'sale' ? 'Sale' : 'All Collections';
+  const categoryTitle = urlSub
+    ? urlSub
+    : category === 'new'
+    ? 'New Arrivals'
+    : category === 'sale'
+    ? 'Sale'
+    : 'Menswear Collection';
 
   return (
     <div className="pt-24 lg:pt-32">
       {/* Banner */}
       <div className="relative h-64 lg:h-80 overflow-hidden mb-12">
         <img
-          src={
-            category === 'men'
-              ? 'https://image.qwenlm.ai/generated-images/bd78c216-4a27-46e3-8267-b80e509e5a0d/_result.png'
-              : category === 'women'
-              ? 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1600&h=400&fit=crop'
-              : 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=1600&h=400&fit=crop'
-          }
+          src="https://image.qwenlm.ai/generated-images/bd78c216-4a27-46e3-8267-b80e509e5a0d/_result.png"
           alt={categoryTitle}
           className="w-full h-full object-cover"
         />

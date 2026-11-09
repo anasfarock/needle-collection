@@ -171,13 +171,13 @@ export const seedProducts: ProductData[] = [
     sizes: ['S', 'M', 'L', 'XL', 'XXL'], stock: 95, isSale: true, publishedAt: '2026-10-15'
   },
   {
-    id: '7', slug: 'kids-kurta-shalwar', title: 'Little Sahab Set', subtitle: 'Boys Kurta Shalwar',
-    description: 'Adorable mini kurta shalwar set for young gentlemen. Premium cotton with subtle embroidery on the collar. Soft, comfortable, and perfect for Eid and family gatherings.',
-    category: 'Kids', subcategory: 'Boys', fabric: 'Cotton', season: 'All',
-    status: 'active', price: 2200,
+    id: '7', slug: 'festive-embroidered-kurta', title: 'Nawab Embroidered Kurta', subtitle: 'Festive Tilla & Threadwork',
+    description: 'Fine Egyptian cotton kurta featuring intricate tonal resham and tilla embroidery along the band collar and placket. Tailored for Eid, nikkah, and evening gatherings.',
+    category: 'Men', subcategory: 'Kurta', fabric: 'Egyptian Cotton', season: 'All',
+    status: 'active', price: 6800,
     images: [productImages[3], productImages[8]],
-    colors: [{ name: 'White', hex: '#FFFFFF' }, { name: 'Cream', hex: '#F5E6D3' }, { name: 'Sky', hex: '#87CEEB' }],
-    sizes: ['2-3Y', '4-5Y', '6-7Y', '8-9Y', '10-12Y'], stock: 34, publishedAt: '2026-11-10'
+    colors: [{ name: 'Ivory', hex: '#F6F1E9' }, { name: 'Black', hex: '#1A1A1A' }, { name: 'Emerald', hex: '#2D5A3D' }],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'], stock: 34, isNew: true, publishedAt: '2026-11-10'
   },
   {
     id: '8', slug: 'winter-khaddar-kurta', title: 'Khaddar Kurta', subtitle: 'Winter Essential',
@@ -189,22 +189,22 @@ export const seedProducts: ProductData[] = [
     sizes: ['S', 'M', 'L', 'XL', 'XXL'], stock: 67, publishedAt: '2026-10-25'
   },
   {
-    id: '9', slug: 'noor-lawn-3-piece', title: 'Noor Lawn Collection', subtitle: 'Women\'s Embroidered 3-Piece',
-    description: 'Exquisite lawn ensemble featuring intricate thread embroidery on the front panel, paired with a digitally printed dupatta and dyed trousers.',
-    category: 'Women', subcategory: 'Unstitched', fabric: 'Lawn', season: 'Summer',
-    status: 'active', price: 4500, compareAtPrice: 5800,
+    id: '9', slug: 'royal-boski-shalwar-kameez', title: 'Royal Spun Boski Suit', subtitle: 'Luxury Silk-Finish Shalwar Kameez',
+    description: 'Signature spun boski shalwar kameez with an unmistakable natural lustre and fluid drape. Finished with concealed placket and cuff links support.',
+    category: 'Men', subcategory: 'Shalwar Kameez', fabric: 'Boski', season: 'All',
+    status: 'active', price: 12500, compareAtPrice: 14800,
     images: [productImages[0], productImages[2], productImages[4]],
-    colors: [{ name: 'Ivory', hex: '#F6F1E9' }, { name: 'Blush', hex: '#E8C4C4' }, { name: 'Sage', hex: '#6F7A63' }],
-    sizes: ['Unstitched'], stock: 45, isSale: true, publishedAt: '2026-11-01'
+    colors: [{ name: 'Cream', hex: '#F5E6D3' }, { name: 'Off-White', hex: '#FAF0E6' }],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'], stock: 45, isSale: true, publishedAt: '2026-11-01'
   },
   {
-    id: '10', slug: 'zara-formal-chiffon', title: 'Zara Formal Chiffon', subtitle: 'Women\'s Heavy Embroidered',
-    description: 'Luxurious chiffon formal wear with heavy hand embroidery, sequin work and stone detailing.',
-    category: 'Women', subcategory: 'Formal & Festive', fabric: 'Chiffon', season: 'Winter',
-    status: 'active', price: 18500,
+    id: '10', slug: 'velvet-prince-coat', title: 'Imperial Velvet Prince Coat', subtitle: 'Handcrafted Formal Outerwear',
+    description: 'Structured bandhgala prince coat in plush Italian velvet with antique zardozi motif on the chest pocket and custom crested buttons.',
+    category: 'Men', subcategory: 'Waistcoats', fabric: 'Velvet', season: 'Winter',
+    status: 'active', price: 24500,
     images: [productImages[3], productImages[4], productImages[5]],
-    colors: [{ name: 'Maroon', hex: '#5A1F26' }, { name: 'Navy', hex: '#1B2A4A' }, { name: 'Emerald', hex: '#2D5A3D' }],
-    sizes: ['Unstitched'], stock: 12, publishedAt: '2026-11-05'
+    colors: [{ name: 'Maroon', hex: '#5A1F26' }, { name: 'Midnight Navy', hex: '#1B2A4A' }, { name: 'Jet Black', hex: '#111111' }],
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'], stock: 12, isNew: true, publishedAt: '2026-11-05'
   },
 ];
 
@@ -630,7 +630,9 @@ async function ensurePrismaSchemaAndSeed(prisma: PrismaClient): Promise<void> {
     });
   }
 
-  // Seed initial Products if none exist
+  // Remove any legacy Women/Kids seed products and seed Menswear products
+  await prisma.$executeRawUnsafe(`DELETE FROM "Product" WHERE "category" IN ('Women', 'Kids');`);
+
   const productCount = await prisma.product.count();
   if (productCount === 0) {
     for (const p of seedProducts) {

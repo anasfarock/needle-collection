@@ -4,12 +4,10 @@ import { useStore, Product } from '../../data/store';
 import { Plus, Search, Edit2, Trash2, ExternalLink, X, Upload, Image as ImageIcon } from 'lucide-react';
 
 const SUBCATEGORIES_BY_CATEGORY: Record<string, string[]> = {
-  Men: ['Kurta', 'Shalwar Kameez', 'Waistcoats', 'Unstitched', 'Sherwani'],
-  Women: ['Unstitched', 'Ready to Wear', 'Formal & Festive', 'Dupattas & Shawls'],
-  Kids: ['Boys', 'Girls', 'Infants'],
+  Men: ['Kurta', 'Shalwar Kameez', 'Waistcoats', 'Sherwani', 'Unstitched'],
 };
 
-const AVAILABLE_SIZES = ['S', 'M', 'L', 'XL', 'XXL', 'Unstitched', '2-3Y', '4-5Y', '6-7Y', '8-9Y', '10-12Y'];
+const AVAILABLE_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Unstitched'];
 
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1614252369475-531eba8c5eb1?w=600&h=800&fit=crop';
 
@@ -48,7 +46,7 @@ export function AdminProducts() {
   const filtered = products.filter(p => {
     if (search && !p.title.toLowerCase().includes(search.toLowerCase()) && !p.subcategory.toLowerCase().includes(search.toLowerCase())) return false;
     if (filterStatus !== 'all' && p.status !== filterStatus) return false;
-    if (filterCategory !== 'all' && p.category !== filterCategory) return false;
+    if (filterCategory !== 'all' && p.subcategory !== filterCategory && p.category !== filterCategory) return false;
     return true;
   });
 
@@ -103,8 +101,8 @@ export function AdminProducts() {
   };
 
   const handleCategoryChange = (category: string) => {
-    const defaultSub = SUBCATEGORIES_BY_CATEGORY[category]?.[0] || '';
-    const defaultSizes = category === 'Women' ? ['Unstitched', 'S', 'M', 'L'] : category === 'Kids' ? ['2-3Y', '4-5Y', '6-7Y', '8-9Y'] : ['S', 'M', 'L', 'XL', 'XXL'];
+    const defaultSub = SUBCATEGORIES_BY_CATEGORY[category]?.[0] || 'Kurta';
+    const defaultSizes = ['S', 'M', 'L', 'XL', 'XXL'];
     setForm(prev => ({
       ...prev,
       category,
@@ -261,10 +259,12 @@ export function AdminProducts() {
           <option value="archived">Archived</option>
         </select>
         <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="border border-hairline px-4 py-2.5 text-sm outline-none bg-transparent">
-          <option value="all">All Categories</option>
-          <option value="Men">Men</option>
-          <option value="Women">Women</option>
-          <option value="Kids">Kids</option>
+          <option value="all">All Styles</option>
+          <option value="Kurta">Kurta</option>
+          <option value="Shalwar Kameez">Shalwar Kameez</option>
+          <option value="Waistcoats">Waistcoats</option>
+          <option value="Sherwani">Sherwani</option>
+          <option value="Unstitched">Unstitched</option>
         </select>
       </div>
 
@@ -405,8 +405,6 @@ export function AdminProducts() {
                     className="w-full border border-hairline px-3 py-2.5 text-sm outline-none bg-transparent"
                   >
                     <option value="Men">Men</option>
-                    <option value="Women">Women</option>
-                    <option value="Kids">Kids</option>
                   </select>
                 </div>
                 <div>

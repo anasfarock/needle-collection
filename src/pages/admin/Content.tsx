@@ -271,7 +271,7 @@ export function AdminContent() {
               <div key={menu}>
                 <h3 className="text-[10px] uppercase tracking-[0.15em] text-stone mb-3">{menu}</h3>
                 <div className="space-y-2">
-                  {['Home', 'Women', 'Men', 'Kids', 'Collections', 'New Arrivals', 'Sale'].slice(0, menu === 'Main Navigation' ? 7 : 4).map(item => (
+                  {['Home', 'Kurtas', 'Shalwar Kameez', 'Waistcoats', 'Sherwani', 'New Arrivals', 'Sale'].slice(0, menu === 'Main Navigation' ? 7 : 4).map(item => (
                     <div key={item} className="flex items-center gap-3 p-2 border border-hairline">
                       <GripVertical size={14} className="text-stone/40" />
                       <input defaultValue={item} className="flex-1 bg-transparent text-sm outline-none" />

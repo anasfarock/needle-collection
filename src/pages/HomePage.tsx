@@ -51,10 +51,10 @@ export function HomePage() {
               </p>
               <div className="flex gap-4 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                 <Link to="/collections/men" className="inline-flex items-center gap-2 bg-oxblood text-ivory px-8 py-4 text-[11px] uppercase tracking-[0.18em] font-medium hover:bg-ivory hover:text-oxblood transition-smooth">
-                  {heroBlock?.content.cta || 'Shop Men'} <ArrowRight size={14} />
+                  {heroBlock?.content.cta || 'Explore Collection'} <ArrowRight size={14} />
                 </Link>
-                <Link to="/collections/women" className="inline-flex items-center gap-2 border border-ivory/40 text-ivory px-8 py-4 text-[11px] uppercase tracking-[0.18em] font-medium hover:bg-ivory hover:text-ink transition-smooth">
-                  Shop Women
+                <Link to="/collections/new" className="inline-flex items-center gap-2 border border-ivory/40 text-ivory px-8 py-4 text-[11px] uppercase tracking-[0.18em] font-medium hover:bg-ivory hover:text-ink transition-smooth">
+                  New Arrivals
                 </Link>
               </div>
             </div>
@@ -62,51 +62,51 @@ export function HomePage() {
         </section>
       )}
 
-      {/* Category Tiles — Men First */}
+      {/* Category Tiles — Menswear Signatures */}
       {(!gridBlock || gridBlock.visible) && (
         <section className="max-w-[1440px] mx-auto px-6 lg:px-16 py-24 lg:py-32">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-6">
-            {/* Men — Large */}
-            <Link to="/collections/men" className="group relative overflow-hidden block md:col-span-7 aspect-[4/5] md:aspect-auto">
+            {/* Kurtas & Shalwar Kameez — Large */}
+            <Link to="/collections/men?sub=Kurta" className="group relative overflow-hidden block md:col-span-7 aspect-[4/5] md:aspect-auto">
               <img
                 src="https://image.qwenlm.ai/generated-images/bd78c216-4a27-46e3-8267-b80e509e5a0d/_result.png"
-                alt="Men's Collection"
+                alt="Kurtas & Shalwar Kameez"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 p-6 lg:p-8">
-                <h3 className="font-display text-3xl lg:text-4xl text-ivory mb-1">Men</h3>
-                <p className="text-ivory/70 text-sm">Kurta · Shalwar Kameez · Waistcoats</p>
+                <h3 className="font-display text-3xl lg:text-4xl text-ivory mb-1">Kurtas & Shalwar Kameez</h3>
+                <p className="text-ivory/70 text-sm">Egyptian Cotton · Wash & Wear · Winter Khaddar</p>
                 <span className="inline-flex items-center gap-2 mt-4 text-[11px] uppercase tracking-[0.15em] text-ivory group-hover:gap-3 transition-all">
                   Explore <ArrowRight size={12} />
                 </span>
               </div>
             </Link>
 
-            {/* Women + Kids stacked */}
+            {/* Waistcoats + Sherwani stacked */}
             <div className="md:col-span-5 grid grid-cols-2 md:grid-cols-1 gap-4 lg:gap-6">
-              <Link to="/collections/women" className="group relative overflow-hidden block aspect-[4/3] md:aspect-auto md:flex-1">
+              <Link to="/collections/men?sub=Waistcoats" className="group relative overflow-hidden block aspect-[4/3] md:aspect-auto md:flex-1">
                 <img
-                  src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=600&fit=crop"
-                  alt="Women's Collection"
+                  src="https://images.unsplash.com/photo-1570382667048-23b581951c33?w=800&h=600&fit=crop"
+                  alt="Tailored Waistcoats"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
                 <div className="absolute bottom-0 left-0 p-6">
-                  <h3 className="font-display text-2xl lg:text-3xl text-ivory mb-1">Women</h3>
-                  <p className="text-ivory/70 text-sm">Unstitched & Ready to Wear</p>
+                  <h3 className="font-display text-2xl lg:text-3xl text-ivory mb-1">Waistcoats</h3>
+                  <p className="text-ivory/70 text-sm">Structured Formal Layering</p>
                 </div>
               </Link>
-              <Link to="/collections/kids" className="group relative overflow-hidden block aspect-[4/3] md:aspect-auto md:flex-1">
+              <Link to="/collections/men?sub=Sherwani" className="group relative overflow-hidden block aspect-[4/3] md:aspect-auto md:flex-1">
                 <img
-                  src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=800&h=600&fit=crop"
-                  alt="Kids Collection"
+                  src="https://images.unsplash.com/photo-1617137968427-85924c800a22?w=800&h=600&fit=crop"
+                  alt="Sherwani & Groomswear"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
                 <div className="absolute bottom-0 left-0 p-6">
-                  <h3 className="font-display text-2xl lg:text-3xl text-ivory mb-1">Kids</h3>
-                  <p className="text-ivory/70 text-sm">Festive & Party Wear</p>
+                  <h3 className="font-display text-2xl lg:text-3xl text-ivory mb-1">Sherwani & Formal</h3>
+                  <p className="text-ivory/70 text-sm">Bespoke Groomswear & Festive</p>
                 </div>
               </Link>
             </div>
