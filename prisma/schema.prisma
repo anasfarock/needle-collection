@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String   @default("Admin User")
+  role         String   @default("Owner")
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Product {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          String
+  subtitle       String   @default("")
+  description    String   @default("")
+  category       String
+  subcategory    String   @default("")
+  fabric         String   @default("")
+  season         String   @default("All")
+  status         String   @default("active")
+  price          Int
+  compareAtPrice Int?
+  images         Json     @default("[]")
+  colors         Json     @default("[]")
+  sizes          Json     @default("[]")
+  stock          Int      @default(0)
+  isNew          Boolean  @default(false)
+  isSale         Boolean  @default(false)
+  publishedAt    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Customer {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String   @unique
+  email       String?
+  city        String?
+  totalOrders Int      @default(0)
+  totalSpent  Int      @default(0)
+  lastOrderAt String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orders      Order[]
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique
+  customerId      String
+  customer        Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  items           Json
+  subtotal        Int
+  discount        Int      @default(0)
+  shipping        Int      @default(0)
+  total           Int
+  status          String   @default("pending")
+  paymentStatus   String   @default("unpaid")
+  paymentMethod   String   @default("cod")
+  shippingAddress Json
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model SiteContent {
+  id        String   @id @default("default")
+  blocks    Json
+  banners   Json
+  updatedAt DateTime @updatedAt
+}
+

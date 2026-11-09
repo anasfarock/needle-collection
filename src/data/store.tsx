@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 
 // Types
 export interface Product {
@@ -77,7 +77,33 @@ export interface DashboardStats {
   conversionRate: number;
 }
 
-// Mock data
+export interface AdminProfile {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
+
+export interface ContentBlock {
+  id: string;
+  type: 'hero' | 'collection_grid' | 'product_carousel' | 'editorial' | 'usp_strip' | 'newsletter';
+  title: string;
+  visible: boolean;
+  content: Record<string, string>;
+}
+
+export interface BannerItem {
+  id: string;
+  text: string;
+  active: boolean;
+}
+
+export interface SiteContent {
+  blocks: ContentBlock[];
+  banners: BannerItem[];
+}
+
+// Initial seed data
 const productImages = [
   'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&h=800&fit=crop',
   'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&h=800&fit=crop',
@@ -124,7 +150,7 @@ export const initialProducts: Product[] = [
   {
     id: '4', slug: 'sherwani-wedding', title: 'Shaan-e-Mehfil Sherwani', subtitle: 'Bridal & Formal',
     description: 'Regal sherwani with heavy hand embroidery, dabka and sequin work. A-line silhouette with band collar, hook closure, and side slits. For the man who commands the grandest day.',
-    category: 'Men', subcategory: 'Formal', fabric: 'Silk Blend', season: 'Winter',
+    category: 'Men', subcategory: 'Sherwani', fabric: 'Silk Blend', season: 'Winter',
     status: 'active', price: 45000, compareAtPrice: 55000,
     images: [productImages[10], productImages[11], productImages[0]],
     colors: [{ name: 'Ivory & Gold', hex: '#DAA520' }, { name: 'Maroon', hex: '#5A1F26' }, { name: 'Midnight', hex: '#191970' }],
@@ -151,7 +177,7 @@ export const initialProducts: Product[] = [
   {
     id: '7', slug: 'kids-kurta-shalwar', title: 'Little Sahab Set', subtitle: 'Boys Kurta Shalwar',
     description: 'Adorable mini kurta shalwar set for young gentlemen. Premium cotton with subtle embroidery on the collar. Soft, comfortable, and perfect for Eid and family gatherings.',
-    category: 'Kids', subcategory: 'Ready to Wear', fabric: 'Cotton', season: 'All',
+    category: 'Kids', subcategory: 'Boys', fabric: 'Cotton', season: 'All',
     status: 'active', price: 2200,
     images: [productImages[3], productImages[8]],
     colors: [{ name: 'White', hex: '#FFFFFF' }, { name: 'Cream', hex: '#F5E6D3' }, { name: 'Sky', hex: '#87CEEB' }],
@@ -178,7 +204,7 @@ export const initialProducts: Product[] = [
   {
     id: '10', slug: 'zara-formal-chiffon', title: 'Zara Formal Chiffon', subtitle: 'Women\'s Heavy Embroidered',
     description: 'Luxurious chiffon formal wear with heavy hand embroidery, sequin work and stone detailing.',
-    category: 'Women', subcategory: 'Formal', fabric: 'Chiffon', season: 'Winter',
+    category: 'Women', subcategory: 'Formal & Festive', fabric: 'Chiffon', season: 'Winter',
     status: 'active', price: 18500,
     images: [productImages[3], productImages[4], productImages[5]],
     colors: [{ name: 'Maroon', hex: '#5A1F26' }, { name: 'Navy', hex: '#1B2A4A' }, { name: 'Emerald', hex: '#2D5A3D' }],
@@ -257,37 +283,247 @@ export const initialOrders: Order[] = [
   },
 ];
 
+const initialSiteContent: SiteContent = {
+  blocks: [
+    {
+      id: '1',
+      type: 'hero',
+      title: 'Hero Banner',
+      visible: true,
+      content: {
+        subtitle: "The Gentleman's Edit — 2026",
+        headline: 'Crafted for the Modern Man',
+        body: 'Shalwar kameez, kurtas, and waistcoats — tailored with heritage craftsmanship for the man who commands every room he enters.',
+        cta: 'Shop Men',
+      },
+    },
+    { id: '2', type: 'collection_grid', title: 'Category Tiles', visible: true, content: { title: 'Shop by Category' } },
+    { id: '3', type: 'product_carousel', title: 'New Arrivals', visible: true, content: { title: 'New Arrivals', collection: 'new' } },
+    {
+      id: '4',
+      type: 'editorial',
+      title: 'Wedding Edit',
+      visible: true,
+      content: {
+        subtitle: 'The Wedding Edit',
+        headline: 'Command the Grandest Day',
+        body: 'From your nikah to the walima, our sherwani and formal collection is crafted for the man who understands that tradition is the ultimate sophistication. Hand-embroidered, regal, unforgettable.',
+        cta: 'Explore Collection',
+      },
+    },
+    { id: '5', type: 'product_carousel', title: 'Sale Items', visible: true, content: { title: 'On Sale', collection: 'sale' } },
+    { id: '6', type: 'usp_strip', title: 'USP Strip', visible: true, content: {} },
+    { id: '7', type: 'newsletter', title: 'Newsletter', visible: true, content: { headline: 'Join the Inner Circle' } },
+  ],
+  banners: [
+    { id: 'b1', text: 'Free Delivery on Orders Above Rs. 3,000', active: true },
+    { id: 'b2', text: 'Cash on Delivery Nationwide', active: true },
+    { id: 'b3', text: 'New Kurta Collection 2026', active: true },
+    { id: 'b4', text: 'Premium Shalwar Kameez', active: true },
+    { id: 'b5', text: 'Easy Returns Within 7 Days', active: true },
+  ],
+};
+
+const TOKEN_STORAGE_KEY = 'nc_admin_token';
+const CART_STORAGE_KEY = 'nc_cart';
+const WISHLIST_STORAGE_KEY = 'nc_wishlist';
+
 // Context
 interface StoreContextType {
   products: Product[];
   orders: Order[];
   customers: Customer[];
+  siteContent: SiteContent;
   cart: CartItem[];
   wishlist: string[];
   isAdmin: boolean;
+  authLoading: boolean;
+  dataLoading: boolean;
+  adminUser: AdminProfile | null;
   setIsAdmin: (v: boolean) => void;
+  loginAdmin: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  logoutAdmin: () => void;
+  updateAdminProfile: (updates: { name?: string; email?: string; currentPassword?: string; newPassword?: string }) => Promise<{ ok: boolean; error?: string }>;
   addToCart: (product: Product, size: string, color: string) => void;
-  removeFromCart: (productId: string) => void;
-  updateCartQuantity: (productId: string, qty: number) => void;
+  removeFromCart: (productId: string, size?: string, color?: string) => void;
+  updateCartQuantity: (productId: string, qty: number, size?: string, color?: string) => void;
   clearCart: () => void;
   toggleWishlist: (productId: string) => void;
-  addOrder: (order: Order) => void;
-  updateOrderStatus: (orderId: string, status: Order['status']) => void;
-  addProduct: (product: Product) => void;
-  updateProduct: (id: string, updates: Partial<Product>) => void;
-  deleteProduct: (id: string) => void;
+  addOrder: (order: Order) => Promise<Order>;
+  updateOrderStatus: (orderId: string, status: Order['status'], paymentStatus?: Order['paymentStatus']) => Promise<void>;
+  addProduct: (product: Omit<Product, 'id'> & { id?: string }) => Promise<Product>;
+  updateProduct: (id: string, updates: Partial<Product>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
+  updateSiteContent: (updates: Partial<SiteContent>) => Promise<void>;
+  refreshData: () => Promise<void>;
   getStats: () => DashboardStats;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
+function getAuthHeaders(): Record<string, string> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem(TOKEN_STORAGE_KEY) : null;
+  return token
+    ? { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+    : { 'Content-Type': 'application/json' };
+}
+
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [orders, setOrders] = useState<Order[]>(initialOrders);
-  const [customers] = useState<Customer[]>(initialCustomers);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [wishlist, setWishlist] = useState<string[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
+  const [siteContent, setSiteContent] = useState<SiteContent>(initialSiteContent);
+  const [dataLoading, setDataLoading] = useState<boolean>(true);
+
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    try {
+      const saved = localStorage.getItem(CART_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [wishlist, setWishlist] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem(WISHLIST_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [isAdmin, setIsAdminState] = useState<boolean>(false);
+  const [adminUser, setAdminUser] = useState<AdminProfile | null>(null);
+  const [authLoading, setAuthLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    } catch {
+      // ignore storage errors
+    }
+  }, [cart]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(wishlist));
+    } catch {
+      // ignore storage errors
+    }
+  }, [wishlist]);
+
+  const refreshData = useCallback(async () => {
+    try {
+      const res = await fetch('/api/bootstrap');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.products)) setProducts(data.products);
+        if (Array.isArray(data.orders)) setOrders(data.orders);
+        if (Array.isArray(data.customers)) setCustomers(data.customers);
+        if (data.content) setSiteContent(data.content);
+      }
+    } catch (err) {
+      console.warn('Could not fetch /api/bootstrap, using local state:', err);
+    } finally {
+      setDataLoading(false);
+    }
+  }, []);
+
+  // Verify stored admin JWT session and bootstrap store data on mount
+  useEffect(() => {
+    refreshData();
+
+    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (!token) {
+      setAuthLoading(false);
+      return;
+    }
+
+    fetch('/api/auth/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(async res => {
+        if (res.ok) {
+          const data = await res.json();
+          setAdminUser(data.admin);
+          setIsAdminState(true);
+        } else {
+          localStorage.removeItem(TOKEN_STORAGE_KEY);
+          setAdminUser(null);
+          setIsAdminState(false);
+        }
+      })
+      .catch(() => {
+        setAuthLoading(false);
+      })
+      .finally(() => {
+        setAuthLoading(false);
+      });
+  }, [refreshData]);
+
+  const loginAdmin = useCallback(async (email: string, password: string): Promise<{ ok: boolean; error?: string }> => {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { ok: false, error: data.error || 'Invalid email or password.' };
+      }
+      localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+      setAdminUser(data.admin);
+      setIsAdminState(true);
+      await refreshData();
+      return { ok: true };
+    } catch (err: any) {
+      return { ok: false, error: err?.message || 'Unable to connect to authentication server.' };
+    }
+  }, [refreshData]);
+
+  const logoutAdmin = useCallback(() => {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    setAdminUser(null);
+    setIsAdminState(false);
+  }, []);
+
+  const setIsAdmin = useCallback((v: boolean) => {
+    if (!v) {
+      logoutAdmin();
+    } else {
+      setIsAdminState(true);
+    }
+  }, [logoutAdmin]);
+
+  const updateAdminProfile = useCallback(async (updates: {
+    name?: string;
+    email?: string;
+    currentPassword?: string;
+    newPassword?: string;
+  }): Promise<{ ok: boolean; error?: string }> => {
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(updates),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { ok: false, error: data.error || 'Failed to update profile.' };
+      }
+      if (data.token) {
+        localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+      }
+      if (data.admin) {
+        setAdminUser(data.admin);
+      }
+      return { ok: true };
+    } catch (err: any) {
+      return { ok: false, error: err?.message || 'Network error while updating profile.' };
+    }
+  }, []);
 
   const addToCart = useCallback((product: Product, size: string, color: string) => {
     setCart(prev => {
@@ -300,17 +536,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const removeFromCart = useCallback((productId: string) => {
-    setCart(prev => prev.filter(i => i.product.id !== productId));
+  const removeFromCart = useCallback((productId: string, size?: string, color?: string) => {
+    setCart(prev => prev.filter(i => {
+      if (i.product.id !== productId) return true;
+      if (size && i.size !== size) return true;
+      if (color && i.color !== color) return true;
+      return false;
+    }));
   }, []);
 
-  const updateCartQuantity = useCallback((productId: string, qty: number) => {
+  const updateCartQuantity = useCallback((productId: string, qty: number, size?: string, color?: string) => {
     if (qty <= 0) {
-      setCart(prev => prev.filter(i => i.product.id !== productId));
+      removeFromCart(productId, size, color);
     } else {
-      setCart(prev => prev.map(i => i.product.id === productId ? { ...i, quantity: qty } : i));
+      setCart(prev => prev.map(i => {
+        if (i.product.id === productId && (!size || i.size === size) && (!color || i.color === color)) {
+          return { ...i, quantity: qty };
+        }
+        return i;
+      }));
     }
-  }, []);
+  }, [removeFromCart]);
 
   const clearCart = useCallback(() => setCart([]), []);
 
@@ -318,24 +564,135 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setWishlist(prev => prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]);
   }, []);
 
-  const addOrder = useCallback((order: Order) => {
+  const addOrder = useCallback(async (order: Order): Promise<Order> => {
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer: order.customer,
+          items: order.items,
+          subtotal: order.subtotal,
+          discount: order.discount,
+          shipping: order.shipping,
+          total: order.total,
+          paymentMethod: order.paymentMethod,
+          shippingAddress: order.shippingAddress,
+          notes: order.notes,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setOrders(prev => [data.order, ...prev]);
+        if (data.customer) {
+          setCustomers(prev => {
+            const exists = prev.some(c => c.id === data.customer.id || c.phone === data.customer.phone);
+            return exists
+              ? prev.map(c => (c.id === data.customer.id || c.phone === data.customer.phone ? data.customer : c))
+              : [data.customer, ...prev];
+          });
+        }
+        // Refresh products so decremented stock reflects immediately
+        refreshData();
+        return data.order;
+      }
+    } catch (err) {
+      console.warn('Order API fallback to local state:', err);
+    }
     setOrders(prev => [order, ...prev]);
+    return order;
+  }, [refreshData]);
+
+  const updateOrderStatus = useCallback(async (orderId: string, status: Order['status'], paymentStatus?: Order['paymentStatus']) => {
+    setOrders(prev => prev.map(o => o.id === orderId ? {
+      ...o,
+      status,
+      ...(paymentStatus ? { paymentStatus } : status === 'delivered' ? { paymentStatus: 'paid' } : {}),
+      updatedAt: new Date().toISOString(),
+    } : o));
+
+    try {
+      const res = await fetch(`/api/orders/${encodeURIComponent(orderId)}`, {
+        method: 'PATCH',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ status, paymentStatus }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setOrders(prev => prev.map(o => o.id === orderId ? data.order : o));
+      }
+    } catch (err) {
+      console.warn('Failed to persist order status update:', err);
+    }
   }, []);
 
-  const updateOrderStatus = useCallback((orderId: string, status: Order['status']) => {
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status, updatedAt: new Date().toISOString() } : o));
+  const addProduct = useCallback(async (productInput: Omit<Product, 'id'> & { id?: string }): Promise<Product> => {
+    try {
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(productInput),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProducts(prev => [data.product, ...prev]);
+        return data.product;
+      }
+    } catch (err) {
+      console.warn('Failed to create product via API, using fallback:', err);
+    }
+    const fallback: Product = {
+      ...productInput,
+      id: productInput.id || `p${Date.now()}`,
+    };
+    setProducts(prev => [fallback, ...prev]);
+    return fallback;
   }, []);
 
-  const addProduct = useCallback((product: Product) => {
-    setProducts(prev => [...prev, product]);
-  }, []);
-
-  const updateProduct = useCallback((id: string, updates: Partial<Product>) => {
+  const updateProduct = useCallback(async (id: string, updates: Partial<Product>) => {
     setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+    try {
+      const res = await fetch(`/api/products/${encodeURIComponent(id)}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(updates),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProducts(prev => prev.map(p => p.id === id ? data.product : p));
+      }
+    } catch (err) {
+      console.warn('Failed to update product via API:', err);
+    }
   }, []);
 
-  const deleteProduct = useCallback((id: string) => {
+  const deleteProduct = useCallback(async (id: string) => {
     setProducts(prev => prev.filter(p => p.id !== id));
+    try {
+      await fetch(`/api/products/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+    } catch (err) {
+      console.warn('Failed to delete product via API:', err);
+    }
+  }, []);
+
+  const updateSiteContent = useCallback(async (updates: Partial<SiteContent>) => {
+    setSiteContent(prev => ({ ...prev, ...updates }));
+    try {
+      const res = await fetch('/api/content', {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(updates),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSiteContent(data.content);
+      }
+    } catch (err) {
+      console.warn('Failed to update site content via API:', err);
+    }
   }, []);
 
   const getStats = useCallback((): DashboardStats => {
@@ -356,9 +713,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   return (
     <StoreContext.Provider value={{
-      products, orders, customers, cart, wishlist, isAdmin, setIsAdmin,
+      products, orders, customers, siteContent, cart, wishlist,
+      isAdmin, authLoading, dataLoading, adminUser,
+      setIsAdmin, loginAdmin, logoutAdmin, updateAdminProfile,
       addToCart, removeFromCart, updateCartQuantity, clearCart, toggleWishlist,
-      addOrder, updateOrderStatus, addProduct, updateProduct, deleteProduct, getStats
+      addOrder, updateOrderStatus, addProduct, updateProduct, deleteProduct,
+      updateSiteContent, refreshData, getStats,
     }}>
       {children}
     </StoreContext.Provider>

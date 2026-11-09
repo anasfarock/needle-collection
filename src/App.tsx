@@ -12,6 +12,7 @@ import { AdminProducts } from './pages/admin/Products';
 import { AdminOrders } from './pages/admin/Orders';
 import { AdminCustomers } from './pages/admin/Customers';
 import { AdminContent } from './pages/admin/Content';
+import { AdminSettings } from './pages/admin/Settings';
 import { AdminLogin } from './pages/admin/Login';
 
 export default function App() {
@@ -36,6 +37,7 @@ export default function App() {
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/customers" element={<AdminCustomers />} />
             <Route path="/admin/content" element={<AdminContent />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>
         </Routes>
       </BrowserRouter>

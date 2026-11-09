@@ -1,29 +1,48 @@
-import { useState, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useStore } from '../data/store';
 import { ProductCard } from '../components/ProductCard';
 import { SlidersHorizontal, X, ChevronDown, Grid3X3, Grid2X2 } from 'lucide-react';
 
 export function CollectionPage() {
   const { category } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { products } = useStore();
   const [sortBy, setSortBy] = useState('newest');
   const [gridCols, setGridCols] = useState(4);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [selectedFabrics, setSelectedFabrics] = useState<string[]>([]);
   const [selectedSeasons, setSelectedSeasons] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
 
-  const filteredProducts = useMemo(() => {
-    let result = [...products].filter(p => p.status === 'active');
+  const urlSub = searchParams.get('sub');
 
-    // Category filter
+  useEffect(() => {
+    if (urlSub) {
+      setSelectedSubcategories([urlSub]);
+    } else {
+      setSelectedSubcategories([]);
+    }
+  }, [urlSub, category]);
+
+  const categoryFilteredBase = useMemo(() => {
+    let result = [...products].filter(p => p.status === 'active');
     if (category === 'women') result = result.filter(p => p.category === 'Women');
     else if (category === 'men') result = result.filter(p => p.category === 'Men');
     else if (category === 'kids') result = result.filter(p => p.category === 'Kids');
     else if (category === 'new') result = result.filter(p => p.isNew);
     else if (category === 'sale') result = result.filter(p => p.isSale);
+    return result;
+  }, [products, category]);
 
+  const filteredProducts = useMemo(() => {
+    let result = [...categoryFilteredBase];
+
+    // Subcategory filter
+    if (selectedSubcategories.length > 0) {
+      result = result.filter(p => selectedSubcategories.includes(p.subcategory));
+    }
     // Fabric filter
     if (selectedFabrics.length > 0) {
       result = result.filter(p => selectedFabrics.includes(p.fabric));
@@ -42,10 +61,11 @@ export function CollectionPage() {
       case 'newest': result.sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || '')); break;
     }
     return result;
-  }, [products, category, sortBy, selectedFabrics, selectedSeasons, priceRange]);
+  }, [categoryFilteredBase, selectedSubcategories, sortBy, selectedFabrics, selectedSeasons, priceRange]);
 
-  const fabrics = [...new Set(products.map(p => p.fabric))];
-  const seasons = [...new Set(products.map(p => p.season))];
+  const subcategories = [...new Set(categoryFilteredBase.map(p => p.subcategory).filter(Boolean))];
+  const fabrics = [...new Set(categoryFilteredBase.map(p => p.fabric).filter(Boolean))];
+  const seasons = [...new Set(categoryFilteredBase.map(p => p.season).filter(Boolean))];
 
   const toggleFilter = (arr: string[], setArr: (v: string[]) => void, val: string) => {
     setArr(arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val]);
@@ -119,6 +139,22 @@ export function CollectionPage() {
               </button>
             )}
             <div className="space-y-8">
+              {subcategories.length > 0 && (
+                <div>
+                  <h3 className="text-[11px] uppercase tracking-[0.18em] font-medium mb-4">Style</h3>
+                  {subcategories.map(sub => (
+                    <label key={sub} className="flex items-center gap-2 py-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedSubcategories.includes(sub)}
+                        onChange={() => toggleFilter(selectedSubcategories, setSelectedSubcategories, sub)}
+                        className="w-3.5 h-3.5 accent-oxblood"
+                      />
+                      <span className="text-sm text-stone">{sub}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
               <div>
                 <h3 className="text-[11px] uppercase tracking-[0.18em] font-medium mb-4">Fabric</h3>
                 {fabrics.map(f => (
@@ -168,7 +204,13 @@ export function CollectionPage() {
                 </div>
               </div>
               <button
-                onClick={() => { setSelectedFabrics([]); setSelectedSeasons([]); setPriceRange([0, 100000]); }}
+                onClick={() => {
+                  setSelectedSubcategories([]);
+                  setSelectedFabrics([]);
+                  setSelectedSeasons([]);
+                  setPriceRange([0, 100000]);
+                  setSearchParams({});
+                }}
                 className="text-[11px] uppercase tracking-[0.15em] text-stone hover:text-oxblood transition-colors"
               >
                 Clear All Filters

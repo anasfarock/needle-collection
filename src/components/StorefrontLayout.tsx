@@ -13,10 +13,12 @@ const navItems = [
 ];
 
 export function StorefrontLayout() {
-  const { cart, wishlist } = useStore();
+  const { cart, wishlist, products, siteContent } = useStore();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeMega, setActiveMega] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
   const isHome = location.pathname === '/';
 
@@ -29,7 +31,24 @@ export function StorefrontLayout() {
   useEffect(() => {
     setMobileMenuOpen(false);
     setActiveMega(null);
+    setSearchOpen(false);
   }, [location]);
+
+  const activeBanners = siteContent.banners.filter(b => b.active);
+  const announcementText = activeBanners.length > 0
+    ? `✦ ${activeBanners.map(b => b.text).join(' ✦ ')} ✦`
+    : '✦ Free Delivery on Orders Above Rs. 3,000 ✦ Cash on Delivery Nationwide ✦ New Kurta Collection 2026 ✦';
+
+  const searchResults = searchQuery.trim()
+    ? products
+        .filter(p => p.status === 'active' && (
+          p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.subcategory.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.fabric.toLowerCase().includes(searchQuery.toLowerCase())
+        ))
+        .slice(0, 6)
+    : [];
 
   const headerBg = isHome && !scrolled ? 'bg-transparent' : 'bg-ivory/95 backdrop-blur-sm border-b border-hairline';
   const textColor = isHome && !scrolled ? 'text-white' : 'text-ink';
@@ -40,10 +59,10 @@ export function StorefrontLayout() {
       <div className="bg-parchment border-b border-hairline py-2 overflow-hidden h-[36px] flex items-center">
         <div className="animate-marquee whitespace-nowrap flex">
           <span className="text-[11px] uppercase tracking-[0.18em] text-stone mx-8">
-            ✦ Free Delivery on Orders Above Rs. 3,000 ✦ Cash on Delivery Nationwide ✦ New Kurta Collection 2026 ✦ Premium Shalwar Kameez ✦ Easy Returns Within 7 Days ✦
+            {announcementText}
           </span>
           <span className="text-[11px] uppercase tracking-[0.18em] text-stone mx-8">
-            ✦ Free Delivery on Orders Above Rs. 3,000 ✦ Cash on Delivery Nationwide ✦ New Kurta Collection 2026 ✦ Premium Shalwar Kameez ✦ Easy Returns Within 7 Days ✦
+            {announcementText}
           </span>
         </div>
       </div>
@@ -71,7 +90,7 @@ export function StorefrontLayout() {
                     <div className="absolute top-full left-0 pt-4 w-56 animate-fade-in-up">
                       <div className="bg-ivory border border-hairline p-6">
                         {item.children.map(child => (
-                          <Link key={child} to={`${item.path}`} className="block py-2 text-sm text-stone hover:text-oxblood transition-colors">
+                          <Link key={child} to={`${item.path}?sub=${encodeURIComponent(child)}`} className="block py-2 text-sm text-stone hover:text-oxblood transition-colors">
                             {child}
                           </Link>
                         ))}
@@ -91,7 +110,11 @@ export function StorefrontLayout() {
 
             {/* Right actions */}
             <div className="flex items-center gap-5">
-              <button className={`hidden lg:block ${textColor} hover:text-oxblood transition-colors`}>
+              <button
+                onClick={() => setSearchOpen(!searchOpen)}
+                className={`${textColor} hover:text-oxblood transition-colors`}
+                title="Search catalog"
+              >
                 <Search size={20} />
               </button>
               <Link to="/cart" className={`relative ${textColor} hover:text-oxblood transition-colors`}>
@@ -123,6 +146,52 @@ export function StorefrontLayout() {
             ))}
           </nav>
         </div>
+
+        {/* Search Dropdown */}
+        {searchOpen && (
+          <div className="bg-ivory border-b border-hairline shadow-sm">
+            <div className="max-w-3xl mx-auto px-6 py-4">
+              <div className="flex items-center gap-3 border-b border-ink pb-2">
+                <Search size={18} className="text-stone" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Search kurtas, shalwar kameez, waistcoats, lawn..."
+                  autoFocus
+                  className="flex-1 bg-transparent text-sm text-ink outline-none"
+                />
+                <button onClick={() => { setSearchOpen(false); setSearchQuery(''); }} className="text-stone hover:text-ink">
+                  <X size={18} />
+                </button>
+              </div>
+              {searchResults.length > 0 && (
+                <div className="divide-y divide-hairline mt-3 max-h-80 overflow-auto">
+                  {searchResults.map(p => (
+                    <Link
+                      key={p.id}
+                      to={`/product/${p.slug}`}
+                      onClick={() => { setSearchOpen(false); setSearchQuery(''); }}
+                      className="flex items-center justify-between py-2.5 hover:bg-parchment/50 px-2 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <img src={p.images[0]} alt={p.title} className="w-10 h-12 object-cover bg-parchment" />
+                        <div>
+                          <p className="text-sm text-ink font-medium">{p.title}</p>
+                          <p className="text-xs text-stone">{p.category} · {p.subcategory}</p>
+                        </div>
+                      </div>
+                      <span className="text-sm text-ink tabular-nums">Rs. {p.price.toLocaleString()}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+              {searchQuery.trim() && searchResults.length === 0 && (
+                <p className="text-xs text-stone py-3">No matching products found.</p>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Mobile Menu */}
@@ -137,7 +206,7 @@ export function StorefrontLayout() {
                 {item.children && (
                   <div className="pl-4 pb-2">
                     {item.children.map(child => (
-                      <Link key={child} to={item.path} className="block py-2 text-sm text-stone">
+                      <Link key={child} to={`${item.path}?sub=${encodeURIComponent(child)}`} className="block py-2 text-sm text-stone">
                         {child}
                       </Link>
                     ))}
@@ -167,8 +236,14 @@ export function StorefrontLayout() {
             <div>
               <h4 className="text-[11px] uppercase tracking-[0.18em] font-medium mb-4">Shop</h4>
               <div className="space-y-3">
-                {['Men', 'Women', 'Kids', 'New Arrivals', 'Sale'].map(item => (
-                  <Link key={item} to={`/collections/${item.toLowerCase()}`} className="block text-sm text-stone hover:text-oxblood transition-colors">{item}</Link>
+                {[
+                  { label: 'Men', path: '/collections/men' },
+                  { label: 'Women', path: '/collections/women' },
+                  { label: 'Kids', path: '/collections/kids' },
+                  { label: 'New Arrivals', path: '/collections/new' },
+                  { label: 'Sale', path: '/collections/sale' },
+                ].map(item => (
+                  <Link key={item.label} to={item.path} className="block text-sm text-stone hover:text-oxblood transition-colors">{item.label}</Link>
                 ))}
               </div>
             </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
 import { useStore } from '../data/store';
-import { LayoutDashboard, Package, ShoppingCart, Users, FileText, Settings, LogOut, Menu, X, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, FileText, Settings, LogOut, Menu, ChevronRight } from 'lucide-react';
 
 const sidebarItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
@@ -9,17 +9,32 @@ const sidebarItems = [
   { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
   { icon: Users, label: 'Customers', path: '/admin/customers' },
   { icon: FileText, label: 'Content', path: '/admin/content' },
-  { icon: Settings, label: 'Settings', path: '/admin' },
+  { icon: Settings, label: 'Settings', path: '/admin/settings' },
 ];
 
 export function AdminLayout() {
-  const { isAdmin, setIsAdmin } = useStore();
+  const { isAdmin, authLoading, adminUser, logoutAdmin } = useStore();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-ivory flex items-center justify-center">
+        <div className="text-stone text-xs uppercase tracking-[0.2em]">Loading Admin Portal...</div>
+      </div>
+    );
+  }
 
   if (!isAdmin) {
     return <Navigate to="/admin/login" replace />;
   }
+
+  const initials = (adminUser?.name || 'Admin User')
+    .split(' ')
+    .map(w => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <div className="min-h-screen bg-ivory flex">
@@ -59,16 +74,16 @@ export function AdminLayout() {
           {/* Footer */}
           <div className="p-4 border-t border-white/10">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 bg-oxblood rounded-full flex items-center justify-center text-xs font-medium">
-                NC
+              <div className="w-8 h-8 bg-oxblood rounded-full flex items-center justify-center text-xs font-medium shrink-0">
+                {initials}
               </div>
-              <div>
-                <p className="text-sm">Admin User</p>
-                <p className="text-[10px] text-ivory/50">Owner</p>
+              <div className="min-w-0">
+                <p className="text-sm truncate">{adminUser?.name || 'Admin User'}</p>
+                <p className="text-[10px] text-ivory/50 truncate">{adminUser?.email || 'Owner'}</p>
               </div>
             </div>
             <button
-              onClick={() => { setIsAdmin(false); }}
+              onClick={logoutAdmin}
               className="flex items-center gap-2 text-sm text-ivory/50 hover:text-ivory transition-colors"
             >
               <LogOut size={16} />
@@ -97,11 +112,11 @@ export function AdminLayout() {
           </div>
           <div className="flex items-center gap-4">
             <Link to="/" className="text-[11px] uppercase tracking-[0.15em] text-stone hover:text-oxblood transition-colors">
-              View Store
+              View Store →
             </Link>
-            <div className="w-8 h-8 bg-parchment rounded-full flex items-center justify-center">
-              <span className="text-xs font-medium">A</span>
-            </div>
+            <Link to="/admin/settings" className="w-8 h-8 bg-parchment rounded-full flex items-center justify-center hover:bg-oxblood hover:text-ivory transition-colors" title={adminUser?.email}>
+              <span className="text-xs font-medium">{initials[0] || 'A'}</span>
+            </Link>
           </div>
         </header>
 

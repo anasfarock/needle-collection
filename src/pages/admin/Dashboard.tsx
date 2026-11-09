@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useStore } from '../../data/store';
 import { TrendingUp, ShoppingCart, Users, Package, DollarSign, AlertTriangle, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
@@ -42,7 +43,7 @@ export function AdminDashboard() {
         <div className="lg:col-span-2 bg-ivory border border-hairline">
           <div className="p-6 border-b border-hairline flex items-center justify-between">
             <h2 className="text-sm font-medium">Recent Orders</h2>
-            <a href="/admin/orders" className="text-[11px] uppercase tracking-[0.15em] text-stone hover:text-oxblood transition-colors">View All</a>
+            <Link to="/admin/orders" className="text-[11px] uppercase tracking-[0.15em] text-stone hover:text-oxblood transition-colors">View All</Link>
           </div>
           <div className="divide-y divide-hairline">
             {recentOrders.map(order => (

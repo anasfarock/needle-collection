@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useStore, Order } from '../data/store';
 import { Check, Lock, Truck, Phone, CreditCard } from 'lucide-react';
 
@@ -23,7 +23,7 @@ export function CheckoutPage() {
   const codFee = form.paymentMethod === 'cod' ? 0 : 0;
   const total = subtotal + shipping + codFee;
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     const orderNum = `NC-2026-${String(Math.floor(Math.random() * 9000) + 1000)}`;
     const order: Order = {
       id: `o${Date.now()}`,
@@ -65,8 +65,8 @@ export function CheckoutPage() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    addOrder(order);
-    setOrderNumber(orderNum);
+    const savedOrder = await addOrder(order);
+    setOrderNumber(savedOrder.orderNumber || orderNum);
     setOrderPlaced(true);
     clearCart();
   };
@@ -105,8 +105,7 @@ export function CheckoutPage() {
   }
 
   if (cart.length === 0) {
-    navigate('/cart');
-    return null;
+    return <Navigate to="/cart" replace />;
   }
 
   return (

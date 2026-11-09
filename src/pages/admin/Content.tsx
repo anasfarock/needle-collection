@@ -1,29 +1,21 @@
-import { useState } from 'react';
-import { Save, Eye, Plus, GripVertical, Image, Type, Layout, ChevronDown, ChevronUp } from 'lucide-react';
-
-interface ContentBlock {
-  id: string;
-  type: 'hero' | 'collection_grid' | 'product_carousel' | 'editorial' | 'usp_strip' | 'newsletter';
-  title: string;
-  visible: boolean;
-  content: Record<string, string>;
-}
-
-const defaultBlocks: ContentBlock[] = [
-  { id: '1', type: 'hero', title: 'Hero Banner', visible: true, content: { headline: 'The Art of Elegance', subtitle: 'Summer 2026', cta: 'Shop Women' } },
-  { id: '2', type: 'collection_grid', title: 'Category Tiles', visible: true, content: { title: 'Shop by Category' } },
-  { id: '3', type: 'product_carousel', title: 'New Arrivals', visible: true, content: { title: 'New Arrivals', collection: 'new' } },
-  { id: '4', type: 'editorial', title: 'Wedding Edit', visible: true, content: { headline: 'Celebrate in Timeless Beauty', body: 'From intimate nikah ceremonies to grand walima receptions...' } },
-  { id: '5', type: 'product_carousel', title: 'Sale Items', visible: true, content: { title: 'On Sale', collection: 'sale' } },
-  { id: '6', type: 'usp_strip', title: 'USP Strip', visible: true, content: {} },
-  { id: '7', type: 'newsletter', title: 'Newsletter', visible: true, content: { headline: 'Join Our World' } },
-];
+import { useState, useEffect } from 'react';
+import { useStore, ContentBlock, BannerItem } from '../../data/store';
+import { Save, Eye, Plus, GripVertical, Image, Type, Layout, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 
 export function AdminContent() {
-  const [blocks, setBlocks] = useState<ContentBlock[]>(defaultBlocks);
+  const { siteContent, updateSiteContent } = useStore();
+  const [blocks, setBlocks] = useState<ContentBlock[]>(siteContent.blocks);
+  const [banners, setBanners] = useState<BannerItem[]>(siteContent.banners);
   const [editingBlock, setEditingBlock] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'homepage' | 'pages' | 'menus' | 'banners'>('homepage');
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [newBannerText, setNewBannerText] = useState('');
+
+  useEffect(() => {
+    setBlocks(siteContent.blocks);
+    setBanners(siteContent.banners);
+  }, [siteContent]);
 
   const toggleVisibility = (id: string) => {
     setBlocks(prev => prev.map(b => b.id === id ? { ...b, visible: !b.visible } : b));
@@ -44,7 +36,24 @@ export function AdminContent() {
     });
   };
 
-  const handleSave = () => {
+  const toggleBanner = (id: string) => {
+    setBanners(prev => prev.map(b => b.id === id ? { ...b, active: !b.active } : b));
+  };
+
+  const addBanner = () => {
+    if (!newBannerText.trim()) return;
+    setBanners(prev => [...prev, { id: `b${Date.now()}`, text: newBannerText.trim(), active: true }]);
+    setNewBannerText('');
+  };
+
+  const removeBanner = (id: string) => {
+    setBanners(prev => prev.filter(b => b.id !== id));
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    await updateSiteContent({ blocks, banners });
+    setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -63,16 +72,20 @@ export function AdminContent() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-display text-3xl mb-1">Content Manager</h1>
-          <p className="text-sm text-stone">Manage homepage, pages, and navigation</p>
+          <p className="text-sm text-stone">Manage homepage sections, announcements, and navigation</p>
         </div>
-        <button onClick={handleSave} className={`flex items-center gap-2 px-5 py-3 text-[11px] uppercase tracking-[0.15em] font-medium transition-smooth ${saved ? 'bg-sage text-ivory' : 'bg-oxblood text-ivory hover:bg-ink'}`}>
-          <Save size={14} /> {saved ? 'Saved!' : 'Save Changes'}
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className={`flex items-center gap-2 px-5 py-3 text-[11px] uppercase tracking-[0.15em] font-medium transition-smooth ${saved ? 'bg-sage text-ivory' : 'bg-oxblood text-ivory hover:bg-ink'}`}
+        >
+          <Save size={14} /> {saving ? 'Saving...' : saved ? 'Saved!' : 'Save Changes'}
         </button>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 mb-8 border-b border-hairline">
-        {(['homepage', 'pages', 'menus', 'banners'] as const).map(tab => (
+        {(['homepage', 'banners', 'pages', 'menus'] as const).map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -90,9 +103,6 @@ export function AdminContent() {
             <div className="bg-ivory border border-hairline">
               <div className="p-4 border-b border-hairline flex items-center justify-between">
                 <h2 className="text-sm font-medium">Homepage Sections</h2>
-                <button className="p-1 hover:bg-parchment transition-colors" title="Add section">
-                  <Plus size={16} />
-                </button>
               </div>
               <div className="divide-y divide-hairline">
                 {blocks.map((block, i) => {
@@ -116,7 +126,7 @@ export function AdminContent() {
                         <button onClick={(e) => { e.stopPropagation(); moveBlock(block.id, 'down'); }} className="p-1 hover:bg-ivory transition-colors" disabled={i === blocks.length - 1}>
                           <ChevronDown size={12} className={i === blocks.length - 1 ? 'text-stone/20' : 'text-stone'} />
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); toggleVisibility(block.id); }} className="p-1 hover:bg-ivory transition-colors">
+                        <button onClick={(e) => { e.stopPropagation(); toggleVisibility(block.id); }} className="p-1 hover:bg-ivory transition-colors" title="Toggle Visibility">
                           <Eye size={12} className={block.visible ? 'text-ink' : 'text-stone/30'} />
                         </button>
                       </div>
@@ -164,7 +174,7 @@ export function AdminContent() {
                       </div>
 
                       <div className="mt-6 p-4 bg-parchment border border-hairline">
-                        <p className="text-[10px] uppercase tracking-[0.15em] text-stone mb-2">Preview</p>
+                        <p className="text-[10px] uppercase tracking-[0.15em] text-stone mb-2">Live Preview</p>
                         <div className="bg-ivory p-4 border border-hairline">
                           {block.content.headline && <p className="font-display text-2xl mb-2">{block.content.headline}</p>}
                           {block.content.subtitle && <p className="text-xs text-stone uppercase tracking-[0.15em] mb-2">{block.content.subtitle}</p>}
@@ -186,13 +196,54 @@ export function AdminContent() {
         </div>
       )}
 
+      {activeTab === 'banners' && (
+        <div className="bg-ivory border border-hairline">
+          <div className="p-4 border-b border-hairline flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-sm font-medium">Top Announcement Bar Messages</h2>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={newBannerText}
+                onChange={e => setNewBannerText(e.target.value)}
+                placeholder="Add new announcement text..."
+                className="border border-hairline px-3 py-1.5 text-sm outline-none focus:border-oxblood"
+              />
+              <button
+                onClick={addBanner}
+                className="flex items-center gap-1 bg-oxblood text-ivory px-3 py-1.5 text-[11px] uppercase tracking-[0.15em]"
+              >
+                <Plus size={14} /> Add
+              </button>
+            </div>
+          </div>
+          <div className="divide-y divide-hairline">
+            {banners.map(banner => (
+              <div key={banner.id} className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-2 h-2 rounded-full ${banner.active ? 'bg-sage' : 'bg-stone/30'}`} />
+                  <p className="text-sm">{banner.text}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => toggleBanner(banner.id)}
+                    className={`text-[10px] uppercase tracking-wider px-2 py-1 border ${banner.active ? 'border-sage/30 text-sage bg-sage/10' : 'border-hairline text-stone'}`}
+                  >
+                    {banner.active ? 'Active' : 'Hidden'}
+                  </button>
+                  <button onClick={() => removeBanner(banner.id)} className="text-stone hover:text-terracotta p-1">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {activeTab === 'pages' && (
         <div className="bg-ivory border border-hairline">
           <div className="p-4 border-b border-hairline flex items-center justify-between">
             <h2 className="text-sm font-medium">Static Pages</h2>
-            <button className="flex items-center gap-1 text-[11px] uppercase tracking-[0.15em] text-stone hover:text-oxblood transition-colors">
-              <Plus size={14} /> New Page
-            </button>
           </div>
           <div className="divide-y divide-hairline">
             {['Our Story', 'Size Guide', 'Shipping & Returns', 'FAQs', 'Privacy Policy', 'Terms of Service', 'Contact Us'].map(page => (
@@ -203,7 +254,6 @@ export function AdminContent() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] uppercase tracking-wider text-sage bg-sage/10 px-2 py-0.5">Published</span>
-                  <button className="text-[11px] uppercase tracking-[0.15em] text-stone hover:text-oxblood transition-colors">Edit</button>
                 </div>
               </div>
             ))}
@@ -221,45 +271,13 @@ export function AdminContent() {
               <div key={menu}>
                 <h3 className="text-[10px] uppercase tracking-[0.15em] text-stone mb-3">{menu}</h3>
                 <div className="space-y-2">
-                  {['Home', 'Women', 'Men', 'Kids', 'Collections', 'New Arrivals', 'Sale'].slice(0, menu === 'Main Navigation' ? 7 : 4).map((item, i) => (
+                  {['Home', 'Women', 'Men', 'Kids', 'Collections', 'New Arrivals', 'Sale'].slice(0, menu === 'Main Navigation' ? 7 : 4).map(item => (
                     <div key={item} className="flex items-center gap-3 p-2 border border-hairline">
                       <GripVertical size={14} className="text-stone/40" />
                       <input defaultValue={item} className="flex-1 bg-transparent text-sm outline-none" />
                       <span className="text-xs text-stone">/{item.toLowerCase().replace(/\s+/g, '-')}</span>
                     </div>
                   ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'banners' && (
-        <div className="bg-ivory border border-hairline">
-          <div className="p-4 border-b border-hairline flex items-center justify-between">
-            <h2 className="text-sm font-medium">Banners & Announcements</h2>
-            <button className="flex items-center gap-1 text-[11px] uppercase tracking-[0.15em] text-stone hover:text-oxblood transition-colors">
-              <Plus size={14} /> New Banner
-            </button>
-          </div>
-          <div className="divide-y divide-hairline">
-            {[
-              { text: 'Free Delivery on Orders Above Rs. 3,000', active: true },
-              { text: 'Cash on Delivery Available', active: true },
-              { text: 'New Summer Lawn 2026 Now Live', active: true },
-              { text: 'Easy Returns Within 7 Days', active: true },
-            ].map((banner, i) => (
-              <div key={i} className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${banner.active ? 'bg-sage' : 'bg-stone/30'}`} />
-                  <p className="text-sm">{banner.text}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`text-[10px] uppercase tracking-wider ${banner.active ? 'text-sage' : 'text-stone'}`}>
-                    {banner.active ? 'Active' : 'Inactive'}
-                  </span>
-                  <button className="text-[11px] uppercase tracking-[0.15em] text-stone hover:text-oxblood transition-colors">Edit</button>
                 </div>
               </div>
             ))}
