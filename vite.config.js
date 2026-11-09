@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import { handleApiRequest } from "./src/server/handler";
+import { handleApiRequest } from "./api/index";
 
 function apiPlugin() {
   const middleware = (req, res, next) => {

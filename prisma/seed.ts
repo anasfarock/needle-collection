@@ -1,22 +1,23 @@
 import { PrismaClient } from '@prisma/client';
 import {
-  initialProducts,
-  initialCustomers,
-  initialOrders,
+  seedProducts,
+  seedCustomers,
+  seedOrders,
   defaultBlocks,
   defaultBanners,
   DEFAULT_ADMIN_EMAIL,
   DEFAULT_ADMIN_PASSWORD,
   DEFAULT_ADMIN_NAME,
-} from '../src/server/initialData';
-import { hashPassword } from '../src/server/auth';
+  hashPassword,
+  resolveDatabaseUrl,
+} from '../api/index';
 
+resolveDatabaseUrl();
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('Seeding Needle Collection database...');
 
-  // 1. Seed default Admin User
   await prisma.adminUser.upsert({
     where: { email: DEFAULT_ADMIN_EMAIL.toLowerCase() },
     update: {},
@@ -29,8 +30,7 @@ async function main() {
   });
   console.log(`✔ Seeded admin user: ${DEFAULT_ADMIN_EMAIL}`);
 
-  // 2. Seed Products
-  for (const p of initialProducts) {
+  for (const p of seedProducts) {
     await prisma.product.upsert({
       where: { slug: p.slug },
       update: {},
@@ -57,10 +57,9 @@ async function main() {
       },
     });
   }
-  console.log(`✔ Seeded ${initialProducts.length} products`);
+  console.log(`✔ Seeded ${seedProducts.length} products`);
 
-  // 3. Seed Customers
-  for (const c of initialCustomers) {
+  for (const c of seedCustomers) {
     await prisma.customer.upsert({
       where: { phone: c.phone },
       update: {},
@@ -76,10 +75,9 @@ async function main() {
       },
     });
   }
-  console.log(`✔ Seeded ${initialCustomers.length} customers`);
+  console.log(`✔ Seeded ${seedCustomers.length} customers`);
 
-  // 4. Seed Orders
-  for (const o of initialOrders) {
+  for (const o of seedOrders) {
     await prisma.order.upsert({
       where: { orderNumber: o.orderNumber },
       update: {},
@@ -101,9 +99,8 @@ async function main() {
       },
     });
   }
-  console.log(`✔ Seeded ${initialOrders.length} orders`);
+  console.log(`✔ Seeded ${seedOrders.length} orders`);
 
-  // 5. Seed Site Content
   await prisma.siteContent.upsert({
     where: { id: 'default' },
     update: {},
@@ -124,4 +121,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-
